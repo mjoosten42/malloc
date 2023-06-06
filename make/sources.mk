@@ -1,1 +1,2 @@
 SOURCES := \
+	src/malloc.c \

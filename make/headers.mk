@@ -1,1 +1,2 @@
 HEADERS := \
+	inc/malloc.h \
