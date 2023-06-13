@@ -1,28 +1,13 @@
 #include "malloc.h"
 #include "libft.h"
-#include "list.h"
+#include "region.h"
 
-t_list	*list = NULL;
+region_t	*regions = NULL;
 
 void	*malloc(size_t size) {
-	t_list	*page = find(&list, has_space, &size);
+	region_t *region = new(size);
 
-	ft_printf("page: %s\n", page);
- 	(void)size;
- 	return (void *)0x42;
+	append(&regions, region);
+
+ 	return region + sizeof(*region);
 }
-
-void	*search(size_t size) {
-	(void)size;	
-	return NULL;
-}
-
-int	has_space(const void *content, void *arg) {
-	const t_page	*page = (const t_page *)content;
-	size_t			space = *(size_t *)arg;
-	size_t			free = page->total - page->used;
-
-	return free >= space;
-}
-
-

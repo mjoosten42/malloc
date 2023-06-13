@@ -4,7 +4,7 @@
 int main() {
 	void*	ptr = malloc(4);
 
-	ft_printf("%p\n", ptr);
-	
-	free(ptr);
+	ft_printf("malloc: %p\n", ptr);
+
+	free(ptr);	
 }

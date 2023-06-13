@@ -1,3 +1,3 @@
 HEADERS := \
-	inc/list.h \
 	inc/malloc.h \
+	inc/region.h \
