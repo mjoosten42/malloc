@@ -1,13 +1,12 @@
 #include "malloc.h"
-#include "libft.h"
-#include "region.h"
+#include "zone.h"
 
-region_t	*regions = NULL;
+zone_t	*zones = NULL;
 
 void	*malloc(size_t size) {
-	region_t *region = new(size);
+	zone_t *zone = new(size);
 
-	append(&regions, region);
+	append(&zones, zone);
 
- 	return region + sizeof(*region);
+ 	return zone + sizeof(*zone);
 }
