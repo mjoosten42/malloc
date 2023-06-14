@@ -2,9 +2,9 @@
 #include "libft.h"
 
 int main() {
-	void*	ptr = malloc(4);
+	void*	ptr = malloc(7);
 
-	ft_printf("malloc: %p\n", ptr);
+	free(ptr);
 
-	free(ptr);	
 }
+

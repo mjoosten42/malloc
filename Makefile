@@ -4,7 +4,7 @@ TEST := test
 CC = gcc
 
 HFLAGS := -MMD -MP
-CFLAGS := -Wall -Werror -Wextra -Wpedantic
+CFLAGS := -Wall -Wextra -Wpedantic #-Werror
 
 SRC_DIR = src
 OBJ_DIR = obj
