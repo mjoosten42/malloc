@@ -4,7 +4,7 @@
 #include <errno.h>		// errno
 
 zone_t *new(size_t size) {
-	size_t 	header_size = sizeof(zone_t) + 2 * sizeof(alloc_t);
+	size_t 	header_size = sizeof(zone_t) + 2 * sizeof(chunk_t);
 	size_t 	capacity = align(size + header_size, PAGESIZE);
 	zone_t 	*zone = allocate(capacity);
 
@@ -15,19 +15,19 @@ zone_t *new(size_t size) {
 	zone->next = NULL;
 	zone->previous = NULL;
 
-	alloc_t *chunk = chunks(zone);
+	chunk_t *chunk = chunks(zone);
 
-	*chunk = (alloc_t){ capacity - header_size, 0 };
+	*chunk = (chunk_t){ capacity - header_size, 0 };
 
-	*next(chunk) = (alloc_t){ 0, 0 };
+	*next(chunk) = (chunk_t){ 0, 0 };
 
 	return zone;
 }
 
-alloc_t *find(zone_t **zones, size_t size) {
+chunk_t *find(zone_t **zones, size_t size) {
 	for (zone_t *zone = *zones; zone != NULL; zone = zone->next) {
-		for (alloc_t *chunk = chunks(zone); chunk->size; chunk = next(chunk)) {
-			if (!chunk->used && chunk->size >= size) {
+		for (chunk_t *chunk = chunks(zone); chunk->size; chunk = next(chunk)) {
+			if (!chunk->used && chunk->size >= sizeof(*chunk) + size) {
 				return chunk;
 			}	
 		}
@@ -56,24 +56,24 @@ zone_t *append(zone_t **lst, zone_t *new) {
 }
 
 void merge(zone_t *zone) {
-	for (alloc_t *chunk = chunks(zone); chunk->size; chunk = next(chunk)) {
+	for (chunk_t *chunk = chunks(zone); chunk->size; chunk = next(chunk)) {
 		if (!chunk->used) {
-			for (alloc_t *n = next(chunk); n->size && !n->used; n = next(n)) {
-				ft_printf("adding %d\n", n->size);
+			for (chunk_t *n = next(chunk); n->size && !n->used; n = next(n)) {
 				chunk->size += n->size + sizeof(*chunk);
 			}
 		}
 	}
 }
 
-alloc_t *chunks(zone_t *zone) {
-	return (alloc_t *)((size_t)zone + sizeof(*zone));
+chunk_t *chunks(zone_t *zone) {
+	return (chunk_t *)((size_t)zone + sizeof(*zone));
 }
 
-alloc_t *next(alloc_t *alloc) {
-	alloc_t *ret = (alloc_t *)((size_t)alloc + alloc->size);
+chunk_t *next(chunk_t *chunk) {
+	chunk_t *ret = (chunk_t *)((size_t)chunk + sizeof(*chunk) + chunk->size);
 
-	if (ret == alloc) {
+	// TODO: remove
+	if (ret == chunk) {
 		ft_printf("next: infinite loop\n");
 		exit(1);
 	}
@@ -81,17 +81,17 @@ alloc_t *next(alloc_t *alloc) {
 	return ret;
 }
 
-void 	*mem(alloc_t *alloc) {
-	return (void *)((size_t)alloc + sizeof(*alloc));
+void 	*mem(chunk_t *chunk) {
+	return (void *)((size_t)chunk + sizeof(*chunk));
 }
 
-void 	take(alloc_t *alloc, size_t size) {
-	alloc_t remaining = { alloc->size - (sizeof(*alloc) + size), 0 };
+void 	take(chunk_t *chunk, size_t size) {
+	chunk_t remaining = { chunk->size - (sizeof(*chunk) + size), 0 };
 
-	alloc->size = size;
-	alloc->used = 1;
+	chunk->size = size;
+	chunk->used = 1;
 
-	*next(alloc) = remaining;	
+	*next(chunk) = remaining;	
 }
 
 size_t align(size_t number, size_t alignment) {
