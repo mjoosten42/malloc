@@ -2,6 +2,8 @@
 #include "zone.h"
 #include <sys/mman.h>	// mmap
 #include <errno.h>		// errno
+#include "iter.h"
+#include "stdint.h" 	// uintptr_t
 
 zone_t *new(size_t size) {
 	size_t 	header_size = sizeof(zone_t) + 2 * sizeof(chunk_t);
@@ -14,28 +16,16 @@ zone_t *new(size_t size) {
 
 	zone->next = NULL;
 	zone->previous = NULL;
+	zone->capacity = capacity;
 
 	chunk_t *chunk = chunks(zone);
 
 	*chunk = (chunk_t){ capacity - header_size, 0 };
 
-	*next(chunk) = (chunk_t){ 0, 0 };
+	*next_chunk(chunk) = (chunk_t){ 0, 0 };
 
 	return zone;
 }
-
-chunk_t *find(zone_t **zones, size_t size) {
-	for (zone_t *zone = *zones; zone != NULL; zone = zone->next) {
-		for (chunk_t *chunk = chunks(zone); chunk->size; chunk = next(chunk)) {
-			if (!chunk->used && chunk->size >= sizeof(*chunk) + size) {
-				return chunk;
-			}	
-		}
-	}
-
-	return NULL;
-}
-
 
 zone_t *append(zone_t **lst, zone_t *new) {
 	zone_t *zone = *lst;
@@ -56,42 +46,34 @@ zone_t *append(zone_t **lst, zone_t *new) {
 }
 
 void merge(zone_t *zone) {
-	for (chunk_t *chunk = chunks(zone); chunk->size; chunk = next(chunk)) {
-		if (!chunk->used) {
-			for (chunk_t *n = next(chunk); n->size && !n->used; n = next(n)) {
-				chunk->size += n->size + sizeof(*chunk);
-			}
+	chunk_t *chunk = chunks(zone);
+	chunk_t *prev = NULL;
+
+	while (chunk->size) {
+		if (prev && !prev->used && !chunk->used) {
+			prev->size += sizeof(*chunk) + chunk->size;
 		}
+
+		prev = chunk;
+		chunk = next_chunk(chunk);
 	}
-}
-
-chunk_t *chunks(zone_t *zone) {
-	return (chunk_t *)((size_t)zone + sizeof(*zone));
-}
-
-chunk_t *next(chunk_t *chunk) {
-	chunk_t *ret = (chunk_t *)((size_t)chunk + sizeof(*chunk) + chunk->size);
-
-	// TODO: remove
-	if (ret == chunk) {
-		ft_printf("next: infinite loop\n");
-		exit(1);
-	}
-
-	return ret;
 }
 
 void 	*mem(chunk_t *chunk) {
-	return (void *)((size_t)chunk + sizeof(*chunk));
+	return (void *)((uintptr_t)chunk + sizeof(*chunk));
 }
 
 void 	take(chunk_t *chunk, size_t size) {
-	chunk_t remaining = { chunk->size - (sizeof(*chunk) + size), 0 };
+	size_t 	remaining = chunk->size - size;
 
-	chunk->size = size;
 	chunk->used = 1;
+	chunk->size = size;
 
-	*next(chunk) = remaining;	
+	if (remaining > sizeof(*chunk)) {
+		*next_chunk(chunk) = (chunk_t){ remaining - sizeof(*chunk), 0 };
+	} else {
+		chunk->size += remaining;
+	}
 }
 
 size_t align(size_t number, size_t alignment) {

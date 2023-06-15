@@ -1,19 +1,25 @@
 #include "malloc.h"
 #include "zone.h"
+#include "iter.h"
+
+int is_ptr(iter_t *it, void *arg);
 
 void free(void *ptr) {
-	for (zone_t *zone = zones; zone != NULL; zone = zone->next) {
-		for (chunk_t *chunk = chunks(zone); chunk->size; chunk = next(chunk)) {
-			if (mem(chunk) == ptr) {
-				chunk->used = 0;
+	ft_printf("free:   %p\n", ptr);
+	iter_t it = find(&zones, is_ptr, &ptr);
 
-				merge(zone);
-
-				return ;
-			}
-		}
+	if (!ok(&it)) {
+		ft_printf("free error\n");
+		return ;
 	}
 
-	ft_printf("free error\n");
+	it.chunk->used = 0;
+	merge(it.zone);
+
+	//TODO: munmap
+}
+
+int is_ptr(iter_t *it, void *arg) {
+	return mem(it->chunk) == *(void **)arg;
 }
 

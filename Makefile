@@ -29,13 +29,13 @@ OBJECTS = $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%,$(SOURCES:.c=.o))
 export DEBUG := 1
 
 ifeq ($(DEBUG), 1)
-	CFLAGS += -O0 -D DEBUG -g3 -fsanitize=undefined
+	CFLAGS += -O0 -g 
 endif
 
 all: $(NAME)
 
 $(NAME): $(OBJECTS) $(LIBFT)
-	$(CC) $(LIBFT) -shared $^ -o $@
+	$(CC) -shared $^ -o $@ $(LIBFT)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) -c $< -fPIC $(CFLAGS) $(HFLAGS)  $(INCLUDE) -o $@ 

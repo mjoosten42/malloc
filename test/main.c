@@ -7,22 +7,19 @@
 #define MAX 1024
 
 int main() {
-	void *ptr[N] = { 0 };
+	void *ptrs[N] = { 0 };
 
 	srand(time(NULL));
 
 	for (int i = 0; i != N; i++) {
-		ptr[i] = malloc(rand() % MAX);
-	}	
-	
+		ptrs[i] = malloc(rand() % MAX);
+	}
 
-	print();
 
 	for (int i = 0; i != N; i++) {
-		free(ptr[i]);
+		free(ptrs[i]);
 	}
 
 	print();
-
 }
 
