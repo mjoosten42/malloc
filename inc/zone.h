@@ -40,7 +40,4 @@ void 	*mem(chunk_t *chunk);
 void 	take(chunk_t *chunk, size_t size);
 void 	merge(zone_t *zone);
 
-size_t 	align(size_t size, size_t alignment);
-void 	*allocate(size_t size);
-
 #endif // ZONE_H

@@ -1,6 +1,7 @@
 #include "malloc.h"
 #include "zone.h"
 #include "iter.h"
+#include "memory.h" // align
 
 zone_t	*zones = NULL;
 
@@ -26,8 +27,6 @@ void	*malloc(size_t size) {
 
 	take(it.chunk, size);
 
-	ft_printf("malloc: %p %d\n", mem(it.chunk), size);
-
  	return mem(it.chunk);
 }
 
@@ -38,6 +37,8 @@ int with_space(iter_t *it, void *arg) {
 	return !chunk->used && chunk->size >= size;
 }
 
+
+// TODO: remove
 #include <stdio.h>
 
 void print() {

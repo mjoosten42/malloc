@@ -35,16 +35,16 @@ endif
 all: $(NAME)
 
 $(NAME): $(OBJECTS) $(LIBFT)
-	$(CC) -shared $^ -o $@ $(LIBFT)
+	$(CC) $(LIBFT) -shared $^ -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	$(CC) -c $< -fPIC $(CFLAGS) $(HFLAGS)  $(INCLUDE) -o $@ 
+	$(CC) -c $< -fPIC $(CFLAGS) $(HFLAGS) $(INCLUDE) -o $@ 
 
 $(OBJ_DIR):
 	mkdir -p $@
 
 test: $(LIBFT)
-	$(CC) $(CFLAGS) $(INCLUDE) -Wl,-rpath,. test/main.c -L. -lmalloc -L$(LIB_DIR)/libft -lft
+	$(CC) $(CFLAGS) $(LIBFT) $(INCLUDE) -Wl,-rpath,. test/main.c -L. -lmalloc
 
 clean:
 	make -C $(LIB_DIR)/libft clean
