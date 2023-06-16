@@ -2,10 +2,6 @@
 #define ZONE_H
 
 #include <stddef.h> // size_t, max_align_t
-#include <unistd.h> // getpagesize
-
-#define ALIGNMENT 	sizeof(void *) // TODO
-#define PAGESIZE 	getpagesize()
 
 /* [ ZONE ]		sizeof(zone_t)
  * [ ALLOC ] 	sizeof(chunk_t)
@@ -30,14 +26,15 @@ struct zone {
 typedef struct chunk 	chunk_t;
 typedef struct zone 	zone_t;
 
-extern zone_t *zones;
-
-zone_t 	*new(size_t size);
-zone_t 	*append(zone_t **lst, zone_t *new);
-
-void 	*mem(chunk_t *chunk);
+zone_t 	*zone_new(size_t size);
+void	zone_delete(zone_t *zone);
+void	push(zone_t **lst, zone_t *new);
 
 void 	take(chunk_t *chunk, size_t size);
+void	clean(zone_t *zone);
 void 	merge(zone_t *zone);
+int		used(zone_t *zone);
+
+void 	*mem(chunk_t *chunk);
 
 #endif // ZONE_H

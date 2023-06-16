@@ -24,5 +24,8 @@ void *allocate(size_t size) {
 	}
 
 	return ptr;
-}	
+}
 
+void	deallocate(void *ptr, size_t size) {
+	munmap(ptr, size);
+}

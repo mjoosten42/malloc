@@ -1,7 +1,6 @@
-#include "malloc.h"
+#include <stdio.h> // TODO: remove
 
 void *realloc(void *ptr, size_t size) {
-  (void)ptr;
-  (void)size;
+  printf("realloc: %p %zu\n", ptr, size);
   return NULL;
 }

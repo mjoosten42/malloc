@@ -3,9 +3,9 @@
 #include "stdint.h" // uintptr_t
 
 #include "libft.h" // TODO: remove
+#include "debug.h" // TODO: remove
 
-iter_t iter(zone_t **zones) {
-	zone_t 	*zone = *zones;
+iter_t iter(zone_t *zone) {
 	chunk_t *chunk = NULL;
 
 	if (zone) {
@@ -15,24 +15,8 @@ iter_t iter(zone_t **zones) {
 	return (iter_t){ zone, chunk };
 }
 
-iter_t *next(iter_t *it) {
-	chunk_t *chunk = it->chunk;
-
-	it->chunk = (chunk_t *)((uintptr_t)chunk + sizeof(*chunk) + chunk->size);
-
-	if (chunk->size == 0) {
-		it->zone = it->zone->next;
-
-		if (it->zone) {
-			it->chunk = chunks(it->zone);
-		}
-	}
-
-	return it;
-}
-
-iter_t 	find(zone_t **zones, fun f, void *arg) {
-	for (iter_t it = iter(zones); ok(&it); next(&it)) {
+iter_t 	find(zone_t *zones, fun f, void *arg) {
+	for (iter_t it = iter(zones); ok(&it); iter_next(&it)) {
 		if (f(&it, arg)) {
 			return it;
 		}
@@ -41,18 +25,36 @@ iter_t 	find(zone_t **zones, fun f, void *arg) {
 	return (iter_t){ NULL, NULL };
 }
 
+iter_t *iter_next(iter_t *it) {
+	it->chunk = next(it->chunk);
+
+	if (it->chunk->size == 0) {
+		it->zone = it->zone->next;
+		it->chunk = NULL;
+	
+		if (it->zone) {
+			it->chunk = chunks(it->zone);
+		}
+	}
+
+	return it;
+}
+
 chunk_t *chunks(zone_t *zone) {
 	return (chunk_t *)((uintptr_t)zone + sizeof(*zone));
 }
 
-chunk_t *next_chunk(chunk_t *chunk) {
-	chunk_t *ret = (chunk_t *)((uintptr_t)chunk + sizeof(*chunk) + chunk->size);
+chunk_t *next(chunk_t *chunk) {
+	size_t	offset = sizeof(*chunk) + chunk->size;
+	chunk_t *ret = (chunk_t *)((uintptr_t)chunk + offset);
 
 	// TODO: remove
 	if (ret == chunk) {
 		ft_printf("next: infinite loop\n");
 		exit(1);
 	}
+
+	chunk = ret;
 
 	return ret;
 }
