@@ -2,12 +2,11 @@
 #include "execinfo.h"	// backtrace
 #include "impl.h"		// _malloc
 
-#include "stdio.h"
-#include "libft.h"
+#include <stdio.h>		// printf
 
-void	*stack_log = NULL;
+static void	*stack_log = NULL;
 
-void save(void *ptr, size_t size) {
+void save_log(void *ptr, size_t size) {
 	void	*stack[MAX_STACK];
 	int		ret = backtrace(stack, MAX_STACK);
 	log_t	*log = _malloc(sizeof(*log));
@@ -21,7 +20,7 @@ void save(void *ptr, size_t size) {
 	stack_log = log;
 }
 
-void show_log() {
+void print_log() {
 	printf("log:\n");
 	for (log_t *log = stack_log; log; log = log->next) {
 		printf("%p %zu\n", log->ptr, log->size);
@@ -30,7 +29,7 @@ void show_log() {
 	}
 }
 
-void print() {
+void print_zones() {
 	for (zone_t *zone = zones; zone != NULL; zone = zone->next) {
 		printf("capacity: %zu\n", zone->capacity);
 		printf("\t%p | %s %zu\n", (void *)zone, "zone ", sizeof(*zone));
@@ -44,4 +43,3 @@ void print() {
 		printf("\n");
 	}
 }
-

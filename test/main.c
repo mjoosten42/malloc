@@ -7,7 +7,5 @@
 int main() {
 	void *ptr = malloc(8);
 
-	print();
-	show_log();
-	free(ptr);
+	(void)ptr;
 }

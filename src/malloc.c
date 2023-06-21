@@ -6,17 +6,13 @@
 
 #include <execinfo.h> // TODO: remove
 
-int 	saving = 1;
-
 void	*malloc(size_t size) {
-	ft_printf("malloc: %d\n", size);
+	LOCKED(printf("malloc: %zu\n", size));
 
 	void *ret = _malloc(align(size, ALIGNMENT));
 		
-	if (ret && saving) {
-		saving = 0;
-		save(ret, size);
-		saving = 1;
+	if (ret) {
+//		LOCKED(save(ret, size));
 	}
 
 	return ret;

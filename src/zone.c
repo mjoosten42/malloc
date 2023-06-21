@@ -71,9 +71,7 @@ void	clean(zone_t *zone) {
 void	merge(zone_t *zone) {
 	chunk_t *prev = NULL;
 
-	print();
 	for (chunk_t *chunk = chunks(zone); chunk->size; next(chunk)) {
-		ft_printf("chunk: %p\n", chunk);
 		if (prev && !prev->used && !chunk->used) {
 			prev->size += sizeof(*chunk) + chunk->size;
 		}

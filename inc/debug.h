@@ -5,6 +5,16 @@
 
 #define MAX_STACK 32
 
+#define LOCKED(x) {	\
+	static int lock = 0;	\
+							\
+	if (!lock) {			\
+		lock = 1;			\
+		x;					\
+		lock = 0;			\
+	}						\
+}					
+
 struct log {
 	struct log *next;
 	void 		*ptr;
@@ -15,8 +25,8 @@ struct log {
 
 typedef struct log log_t;
 
-void 	save(void *ptr, size_t size);
-void	show_log();
-void 	print(); // TODO: remove
+void 	save_log(void *ptr, size_t size);
+void	print_log();
+void 	print_zones(); // TODO: remove
 
 #endif 
