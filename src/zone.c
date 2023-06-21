@@ -5,7 +5,7 @@
 #include "impl.h"	// zones
 
 zone_t	*zone_new(size_t size) {
-	size_t 	header_size = sizeof(zone_t) + 2 * sizeof(chunk_t);
+	size_t 	header_size = ZONESIZE + 2 * CHUNKSIZE;
 	size_t 	capacity = align(size + header_size, PAGESIZE);
 	zone_t 	*zone = allocate(capacity);
 
@@ -16,6 +16,7 @@ zone_t	*zone_new(size_t size) {
 	zone->next = NULL;
 	zone->previous = NULL;
 	zone->capacity = capacity;
+	zone->padding = 0;
 
 	chunk_t *chunk = chunks(zone);
 
@@ -41,19 +42,24 @@ void	zone_delete(zone_t *zone) {
 }
 
 void	push(zone_t **lst, zone_t *new) {
-	new->next = *lst;
+	zone_t *top = *lst;
+
+	if (top) {
+		top->previous = new;
+	}
+
+	new->next = top;
 
 	*lst = new;
 }
 
-void 	take(chunk_t *chunk, size_t size) {
+void 	split(chunk_t *chunk, size_t size) {
 	size_t 	remaining = chunk->size - size;
 
-	chunk->used = 1;
 	chunk->size = size;
 
-	if (remaining > sizeof(*chunk)) {
-		*next(chunk) = (chunk_t){ remaining - sizeof(*chunk), 0 };
+	if (remaining > CHUNKSIZE) {
+		*next(chunk) = (chunk_t){ remaining - CHUNKSIZE, 0 };
 	} else {
 		chunk->size += remaining;
 	}
@@ -71,9 +77,9 @@ void	clean(zone_t *zone) {
 void	merge(zone_t *zone) {
 	chunk_t *prev = NULL;
 
-	for (chunk_t *chunk = chunks(zone); chunk->size; next(chunk)) {
+	for (chunk_t *chunk = chunks(zone); chunk->size; chunk = next(chunk)) {
 		if (prev && !prev->used && !chunk->used) {
-			prev->size += sizeof(*chunk) + chunk->size;
+			prev->size += CHUNKSIZE + chunk->size;
 		}
 
 		prev = chunk;
@@ -81,7 +87,7 @@ void	merge(zone_t *zone) {
 }
 
 int		used(zone_t *zone) {
-	for (chunk_t *chunk = chunks(zone); chunk->size; next(chunk)) {
+	for (chunk_t *chunk = chunks(zone); chunk->size; chunk = next(chunk)) {
 		if (chunk->used) {
 			return 1;
 		}			
@@ -92,6 +98,6 @@ int		used(zone_t *zone) {
 }
 
 void 	*mem(chunk_t *chunk) {
-	return (void *)((uintptr_t)chunk + sizeof(*chunk));
+	return (void *)((uintptr_t)chunk + CHUNKSIZE);
 }
 

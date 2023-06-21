@@ -43,7 +43,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 $(OBJ_DIR):
 	mkdir -p $@
 
-test: $(LIBFT)
+test: all $(LIBFT)
 	$(CC) $(CFLAGS) $(LIBFT) $(INCLUDE) -Wl,-rpath,. test/main.c -L. -lmalloc
 
 clean:

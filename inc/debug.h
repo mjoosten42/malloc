@@ -2,8 +2,14 @@
 #define DEBUG_H
 
 #include <stddef.h>	// size_t
+#include "libft.h"	// ft_printf"
 
-#define MAX_STACK 32
+#ifdef DEBUG
+	#define LOG(format, ...) ft_printf(format, __VA_ARGS__)
+#else
+	#define LOG(format, ...)
+#endif
+
 
 #define LOCKED(x) {	\
 	static int lock = 0;	\
@@ -19,14 +25,14 @@ struct log {
 	struct log *next;
 	void 		*ptr;
 	size_t 		size;
-	void 		*stack;
+	void 		**stack;
 	size_t		stack_size;
 };
 
 typedef struct log log_t;
 
 void 	save_log(void *ptr, size_t size);
-void	print_log();
-void 	print_zones(); // TODO: remove
+void	print_log(void);
+void 	print_zones(void);
 
 #endif 

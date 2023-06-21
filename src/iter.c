@@ -15,48 +15,30 @@ iter_t iter(zone_t *zone) {
 	return (iter_t){ zone, chunk };
 }
 
-iter_t 	find(zone_t *zones, fun f, void *arg) {
-	for (iter_t it = iter(zones); ok(&it); iter_next(&it)) {
-		if (f(&it, arg)) {
-			return it;
+iter_t 	find(zone_t *zones, fn f, void *arg) {
+	for (zone_t *zone = zones; zone; zone = zone->next) {
+		for (chunk_t *chunk = chunks(zone); chunk->size; chunk = next(chunk)) {
+			iter_t	it = { zone, chunk };
+
+			if (f(&it, arg)) {
+				return it;
+			}
 		}
 	}
 
 	return (iter_t){ NULL, NULL };
 }
 
-iter_t *iter_next(iter_t *it) {
-	it->chunk = next(it->chunk);
-
-	if (it->chunk->size == 0) {
-		it->zone = it->zone->next;
-		it->chunk = NULL;
-	
-		if (it->zone) {
-			it->chunk = chunks(it->zone);
-		}
-	}
-
-	return it;
-}
-
 chunk_t *chunks(zone_t *zone) {
-	return (chunk_t *)((uintptr_t)zone + sizeof(*zone));
+	return (chunk_t *)((uintptr_t)zone + ZONESIZE);
 }
 
 chunk_t *next(chunk_t *chunk) {
-	size_t	offset = sizeof(*chunk) + chunk->size;
-	chunk_t *ret = (chunk_t *)((uintptr_t)chunk + offset);
+	return (chunk_t *)((uintptr_t)chunk + CHUNKSIZE + chunk->size);
+}
 
-	// TODO: remove
-	if (ret == chunk) {
-		ft_printf("next: infinite loop\n");
-		exit(1);
-	}
-
-	chunk = ret;
-
-	return ret;
+chunk_t *to_chunk(void *ptr) {
+	return (chunk_t *)((uintptr_t)ptr - CHUNKSIZE);
 }
 
 int ok(iter_t *iter) {

@@ -1,19 +1,20 @@
 #include "impl.h"	// _malloc
 #include "memory.h"	// align, ALIGNMENT
 
-#include "debug.h"	// TODO: #ifdef
-#include "libft.h"  // TODO: remove
-
-#include <execinfo.h> // TODO: remove
+// TODO: remove
+#include "debug.h"	
+#include "libft.h"
 
 void	*malloc(size_t size) {
-	LOCKED(printf("malloc: %zu\n", size));
+	LOG("malloc(%d):\t\t...\n", size);
 
+	if (!size) {
+		return NULL;
+	}
 	void *ret = _malloc(align(size, ALIGNMENT));
 		
-	if (ret) {
-//		LOCKED(save(ret, size));
-	}
+	LOG("malloc(%d):", size);
+	LOG("\t\t%p\n", ret);
 
 	return ret;
 }

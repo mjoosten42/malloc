@@ -4,8 +4,6 @@
 
 #include <stdio.h>	// TODO: remove
 
-static int	with_space(iter_t *it, void *arg);
-
 zone_t	*zones = NULL;
 
 void	*_malloc(size_t size) {
@@ -20,18 +18,26 @@ void	*_malloc(size_t size) {
 	
 		push(&zones, zone);
 
-		it = find(zone, with_space, &size);
+		it.chunk = chunks(zone);
 	}
 
-	take(it.chunk, size);
+	chunk_t *chunk = it.chunk;
 
- 	return mem(it.chunk);
+	split(chunk, size);
+	
+	chunk->used = 1;
+
+ 	return mem(chunk);
 }
 
-static int with_space(iter_t *it, void *arg) {
+int with_space(iter_t *it, void *arg) {
 	size_t 	size = *(size_t *)arg;
 	chunk_t *chunk = it->chunk;
 
 	return !chunk->used && chunk->size >= size;
+}
+
+int is_ptr(iter_t *it, void *arg) {
+	return mem(it->chunk) == *(void **)arg;
 }
 
