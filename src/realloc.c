@@ -6,7 +6,11 @@
 #include <stdio.h>
 #include "debug.h"
 
-// TODO: error checking
+/*	ptr		size
+ *	0		any		_malloc
+ *	> 0		0		_free + NULL
+ *  > 0		> 0		_realloc 
+ */
 
 void *realloc(void *ptr, size_t size) {
  	LOG("realloc: %p %d\n", ptr, size);
@@ -14,26 +18,36 @@ void *realloc(void *ptr, size_t size) {
 	void *ret = NULL;
 
 	if (!ptr) {
-		ret = _malloc(align(size, ALIGNMENT));
+		ret = _malloc(ALIGN(size, ALIGNMENT));
 	} else {
-		ret = _realloc(ptr, align(size, ALIGNMENT));
+		if (!size) {
+			_free(ptr);
+		} else {
+			ret = _realloc(ptr, ALIGN(size, ALIGNMENT));
+		}
 	}
 
 	return ret;
 }
 
+/* Increase size of chunk as much as possible.
+ * If sufficient, split and be done.
+ * If not, reset size, allocate a new chunk, copy and free the old chunk
+ */
 void *_realloc(void *ptr, size_t size) {
 	chunk_t *chunk = to_chunk(ptr);
-	chunk_t *n = next(chunk);
+	size_t	old_size = chunk->size;
 	void	*ret = NULL;
 
-	if (!n->used && chunk->size + CHUNKSIZE + n->size >= size) {
-		chunk->size = size;
+	merge(chunk);
 
+	if (chunk->size >= size) {
 		split(chunk, size);	
 
 		ret = mem(chunk);
 	} else {
+		split(chunk, old_size);
+	
 		void *new = _malloc(size);
 	
 		if (!new) {

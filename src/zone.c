@@ -1,12 +1,12 @@
 #include "zone.h"
-#include "iter.h"
 #include <stdint.h> // uintptr_t
-#include "memory.h" // align, PAGESIZE
+#include "memory.h" // ALIGN, PAGESIZE
 #include "impl.h"	// zones
+#include "chunk.h"
 
-zone_t	*zone_new(size_t size) {
+zone_t	*map(size_t size) {
 	size_t 	header_size = ZONESIZE + 2 * CHUNKSIZE;
-	size_t 	capacity = align(size + header_size, PAGESIZE);
+	size_t 	capacity = ALIGN(size + header_size, PAGESIZE);
 	zone_t 	*zone = allocate(capacity);
 
 	if (!zone) {
@@ -14,90 +14,44 @@ zone_t	*zone_new(size_t size) {
 	}
 
 	zone->next = NULL;
-	zone->previous = NULL;
 	zone->capacity = capacity;
-	zone->padding = 0;
 
 	chunk_t *chunk = chunks(zone);
 
-	*chunk = (chunk_t){ capacity - header_size, 0 };
+	*chunk = chunk_new(capacity - header_size);
 
-	*next(chunk) = (chunk_t){ 0, 0 };
+	*next(chunk) = chunk_new(0);
 
 	return zone;
 }
 
-void	zone_delete(zone_t *zone) {
-	if (zone->next) {
-		zone->next->previous = zone->previous;
-	}
+#include "debug.h"
 
-	if (zone->previous) {
-		zone->previous->next = zone->next;
+void	unmap(zone_t *zone, zone_t *prev) {
+	LOG("before unmap:\n", NULL);
+	print_zones();
+
+	if (prev) {
+		prev->next = zone->next;
 	}
 
 	if (zone == zones) {
 		zones = zone->next;
 	}
+
+	deallocate(zone, zone->capacity);
+
+	LOG("after unmap:\n", NULL);
+	print_zones();
 }
 
-void	push(zone_t **lst, zone_t *new) {
-	zone_t *top = *lst;
+void	push(zone_t **zones, zone_t *new) {
+	new->next = *zones;
 
-	if (top) {
-		top->previous = new;
-	}
-
-	new->next = top;
-
-	*lst = new;
+	*zones = new;
 }
 
-void 	split(chunk_t *chunk, size_t size) {
-	size_t 	remaining = chunk->size - size;
-
-	chunk->size = size;
-
-	if (remaining > CHUNKSIZE) {
-		*next(chunk) = (chunk_t){ remaining - CHUNKSIZE, 0 };
-	} else {
-		chunk->size += remaining;
-	}
-}
-
-void	clean(zone_t *zone) {
-	merge(zone);
-
-	if (!used(zone)) {
-		zone_delete(zone);
-	}
-}
-
-#include "libft.h"
-void	merge(zone_t *zone) {
-	chunk_t *prev = NULL;
-
-	for (chunk_t *chunk = chunks(zone); chunk->size; chunk = next(chunk)) {
-		if (prev && !prev->used && !chunk->used) {
-			prev->size += CHUNKSIZE + chunk->size;
-		}
-
-		prev = chunk;
-	}
-}
-
-int		used(zone_t *zone) {
-	for (chunk_t *chunk = chunks(zone); chunk->size; chunk = next(chunk)) {
-		if (chunk->used) {
-			return 1;
-		}			
-	}
-
-	return 0;
-
-}
-
-void 	*mem(chunk_t *chunk) {
-	return (void *)((uintptr_t)chunk + CHUNKSIZE);
+chunk_t *chunks(zone_t *zone) {
+	return (chunk_t *)((uintptr_t)zone + ZONESIZE);
 }
 

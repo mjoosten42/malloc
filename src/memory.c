@@ -4,18 +4,12 @@
 
 #include "debug.h"		// LOG
 
-size_t align(size_t number, size_t alignment) {
-	size_t minus_one = alignment - 1;
-
-	return (number + minus_one) & ~minus_one;
-}
-
 void *allocate(size_t size) {
 	int 	prot = PROT_READ | PROT_WRITE;
 	int 	flags = MAP_ANONYMOUS | MAP_PRIVATE;
 	void 	*ptr = mmap(NULL, size, prot, flags, -1, 0);
 	
-	LOG("mmap:\t\t\t%p\n", ptr);
+	LOG("mmap:\t\t\t%p\t%d\n", ptr, size);
 
 	if (ptr == MAP_FAILED) {
 		ptr = NULL;
@@ -27,7 +21,7 @@ void *allocate(size_t size) {
 }
 
 void	deallocate(void *ptr, size_t size) {
-	LOG("munmap:\t%p %d\n", ptr, size);
+	LOG("munmap:\t\t\t%p\t%d\n", ptr, size);
 
 	munmap(ptr, size);
 }

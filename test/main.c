@@ -1,16 +1,37 @@
 #include "malloc.h"
-#include "libft.h"
-#include <time.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include "debug.h"
+#include <time.h>
+#include <string.h>
+
+#define SIZE	32
 
 int main(void) {
-	void *ptr = malloc(8);
-	void *a = malloc(4096);
+	srand(time(NULL));
 
-	free(ptr);
+	void	*ptrs[SIZE] = { 0 };
+	int		used[SIZE] = { 0 };
+	
+	size_t	max = rand();
 
-	(void)a;
+	for (size_t i = 0; i != max; i++) {
+		size_t	r = rand() % SIZE;
 
-	print_zones();
+		if (used[r]) {
+			free(ptrs[r]);
+			print_zones();
+			used[r] = 0;
+		} else {
+			ptrs[r] = malloc(1 + rand() % 8000);
+			if (!ptrs[r]) {
+				return 1;
+			}
+			used[r] = 1;
+			memset(ptrs[r], 42, 1);
+			print_zones();
+		}
+	}
+
+
+
 }

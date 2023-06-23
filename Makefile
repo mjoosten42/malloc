@@ -26,10 +26,10 @@ INCLUDE += -I lib/libft/include
 
 OBJECTS = $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%,$(SOURCES:.c=.o))
 
-export DEBUG := 1
+DEBUG := 1
 
 ifeq ($(DEBUG), 1)
-	CFLAGS += -O0 -g 
+	CFLAGS += -O0 -g -DDEBUG 
 endif
 
 all: $(NAME)

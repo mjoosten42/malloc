@@ -9,6 +9,10 @@
 static void	*stack_log = NULL;
 static int	lock = 0;
 
+__attribute((constructor)) void init(void) {
+	atexit(print_zones);
+}
+
 void save_log(void *ptr, size_t size) {
 	if (!lock) {
 		lock = 1;
@@ -45,7 +49,7 @@ void print_log(void) {
 }
 
 void print_zones(void) {
-	ft_printf("print_zones\n");
+	ft_printf("--- Zones ---\n");
 	for (zone_t *zone = zones; zone != NULL; zone = zone->next) {
 		ft_printf("capacity: %d\n", zone->capacity);
 		ft_printf("\t%p | %s %d\n", (void *)zone, "zone ", ZONESIZE);

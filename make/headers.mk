@@ -1,4 +1,5 @@
 HEADERS := \
+	inc/chunk.h \
 	inc/debug.h \
 	inc/impl.h \
 	inc/iter.h \
