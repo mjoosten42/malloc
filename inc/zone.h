@@ -1,10 +1,11 @@
 #ifndef ZONE_H
 #define ZONE_H
 
-#include <stddef.h>		// size_t
 #include "chunk.h"
 
-#define ZONESIZE	sizeof(zone_t)
+#include <stddef.h> // size_t
+
+#define ZONESIZE sizeof(zone_t)
 
 /* [ ZONE  ]	sizeof(zone_t)
  * [ CHUNK ] 	sizeof(chunk_t)
@@ -21,17 +22,18 @@
  * [ CHUNK ]	CHUNKSIZE, chunk->size == 0
  */
 
+// mmap header
 struct zone {
-	struct zone*	next;
-	size_t 			capacity;
+	struct zone *next;
+	size_t		 capacity;
 };
 
 typedef struct zone zone_t;
 
-zone_t 	*map(size_t size);
+zone_t *map(size_t size);
 void	unmap(zone_t *zone, zone_t *prev);
 
-void	push(zone_t **lst, zone_t *new);
+void push(zone_t **lst, zone_t *new);
 
 chunk_t *chunks(zone_t *zone);
 

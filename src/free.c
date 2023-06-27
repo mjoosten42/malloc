@@ -1,18 +1,18 @@
-#include "zone.h"
-#include "iter.h"
+#include "chunk.h"
+#include "impl.h"
+
+#include <stdint.h> // uintptr_t
 #include <stdlib.h> // abort
-#include "impl.h"	// zones
-#include <stdint.h>	// uintptr_t
 
 // TODO: remove
-#include "libft.h"
 #include "debug.h"
+#include "libft.h"
 
-void	free(void *ptr) {
+void free(void *ptr) {
 	LOG("free(%p)\n", ptr);
-	
+
 	if (!ptr) {
-		return ;
+		return;
 	}
 
 	_free(ptr);
@@ -22,8 +22,6 @@ void	free(void *ptr) {
  * because finding the zone header from a chunk isn't possible.
  * Instead, cleanup is done at allocation time
  */
-void	_free(void *ptr) {
-	chunk_t *chunk = to_chunk(ptr); 
-
-	chunk->used = 0;
+void _free(void *ptr) {
+	to_chunk(ptr)->used = 0;
 }

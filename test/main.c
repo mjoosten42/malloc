@@ -5,6 +5,7 @@
 #include <string.h>
 
 #define SIZE	32
+#define MAX 	100
 
 int main(void) {
 	srand(time(NULL));
@@ -19,16 +20,14 @@ int main(void) {
 
 		if (used[r]) {
 			free(ptrs[r]);
-			print_zones();
 			used[r] = 0;
 		} else {
-			ptrs[r] = malloc(1 + rand() % 8000);
+			ptrs[r] = malloc(1 + rand() % MAX);
 			if (!ptrs[r]) {
 				return 1;
 			}
 			used[r] = 1;
-			memset(ptrs[r], 42, 1);
-			print_zones();
+			write(-1, ptrs[r], 1);			
 		}
 	}
 

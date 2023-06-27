@@ -1,10 +1,10 @@
-NAME := libmalloc.so
-TEST := test
+NAME = libmalloc.so
+TEST = test
 
 CC = gcc
 
-HFLAGS := -MMD -MP
-CFLAGS := -Wall -Wextra -Wpedantic -Werror
+HFLAGS = -MMD -MP
+CFLAGS = -Wall -Wextra -Werror -Wpedantic
 
 SRC_DIR = src
 OBJ_DIR = obj
@@ -26,10 +26,10 @@ INCLUDE += -I lib/libft/include
 
 OBJECTS = $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%,$(SOURCES:.c=.o))
 
-DEBUG := 1
+DEBUG ?= 1
 
 ifeq ($(DEBUG), 1)
-	CFLAGS += -O0 -g -DDEBUG 
+	CFLAGS += -O0 -g -DDEBUG -fsanitize=undefined 
 endif
 
 all: $(NAME)
@@ -38,12 +38,12 @@ $(NAME): $(OBJECTS) $(LIBFT)
 	$(CC) $(LIBFT) -shared $^ -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	$(CC) -c $< -fPIC $(CFLAGS) $(HFLAGS) $(INCLUDE) -o $@ 
+	$(CC) $(CFLAGS) -fPIC $(HFLAGS) $(INCLUDE) -c $< -o $@
 
 $(OBJ_DIR):
 	mkdir -p $@
 
-test: all $(LIBFT)
+test: all
 	$(CC) $(CFLAGS) $(LIBFT) $(INCLUDE) -Wl,-rpath,. test/main.c -L. -lmalloc
 
 clean:
@@ -72,6 +72,9 @@ print:
 format: files
 	clang-format -i $(SOURCES) $(HEADERS)
 
-.PHONY: all test clean fclean re run files print format
+scan: clean
+	scan-build make
+
+.PHONY: all test clean fclean re run files print format scan
 
 -include $(OBJECTS:.o=.d)

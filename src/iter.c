@@ -1,13 +1,18 @@
 #include "iter.h"
-#include "zone.h"
-#include "stdint.h" // uintptr_t
 
-iter_t 	find(zone_t *zones, size_t size) {
-	zone_t tmp = (zone_t){ .next = NULL, .capacity = 42 };
+#include "stdint.h" // uintptr_t
+#include "zone.h"
+
+iter_t find(zone_t *zones, size_t size) {
+	zone_t	tmp	 = (zone_t){ .next = NULL };
 	zone_t *prev = NULL;
 
-	for (zone_t *zone = zones; zone; zone = zone->next, prev = zone) {
-		int	used = 0;
+	for (zone_t *zone = zones; zone; prev = zone, zone = zone->next) {
+		int used = 0;
+
+		if (zone->capacity - (ZONESIZE + 2 * CHUNKSIZE) < size) {
+			continue;
+		}
 
 		for (chunk_t *chunk = chunks(zone); chunk->size; chunk = next(chunk)) {
 			if (!chunk->used) {
@@ -39,4 +44,3 @@ iter_t 	find(zone_t *zones, size_t size) {
 int ok(iter_t *iter) {
 	return iter->zone != NULL;
 }
-
