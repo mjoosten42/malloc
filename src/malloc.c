@@ -1,11 +1,7 @@
-#include "impl.h"	// _malloc
-#include "memory.h" // ALIGN, ALIGNMENT
-
-// TODO: remove
-#include "debug.h"
+#include "debug.h" // TODO
+#include "impl.h"  // _malloc
 #include "libft.h"
-
-#include <stdio.h>
+#include "memory.h" // ALIGN, ALIGNMENT
 
 zone_t *zones = NULL;
 
@@ -15,6 +11,12 @@ void *malloc(size_t size) {
 	}
 
 	void *ret = _malloc(ALIGN(size, ALIGNMENT));
+
+#ifdef MallocPreScribble
+	if (ret) {
+		ft_memset(ptr, PRESCRIBBLE, to_chunk(ptr)->size);
+	}
+#endif
 
 	LOG("malloc(%d):", size);
 	LOG("\t\t%p\n", ret);

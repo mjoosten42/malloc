@@ -1,11 +1,6 @@
 #include "chunk.h"
+#include "debug.h" // TODO
 #include "impl.h"
-
-#include <stdint.h> // uintptr_t
-#include <stdlib.h> // abort
-
-// TODO: remove
-#include "debug.h"
 #include "libft.h"
 
 void free(void *ptr) {
@@ -16,6 +11,8 @@ void free(void *ptr) {
 	}
 
 	_free(ptr);
+
+	get_log(ptr)->freed = 1;
 }
 
 /* This does not merge chunks or unmap zones,
@@ -23,5 +20,11 @@ void free(void *ptr) {
  * Instead, cleanup is done at allocation time
  */
 void _free(void *ptr) {
-	to_chunk(ptr)->used = 0;
+	chunk_t *chunk = to_chunk(ptr);
+
+	chunk->used = 0;
+
+#ifdef MallocScribble
+	ft_memset(ptr, SCRIBBLE, chunk->size);
+#endif
 }

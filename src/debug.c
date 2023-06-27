@@ -1,67 +1,61 @@
 #include "debug.h"
 
-#include "execinfo.h" // backtrace
-#include "impl.h"	  // _malloc
+#include "impl.h" // _malloc
 #include "libft.h"
 #include "malloc.h" // show_alloc_mem
+#include "memory.h"
 
-#define MAX_STACK 32
+#include <stdint.h>
 
-static void *stack_log = NULL;
-
-__attribute((constructor)) void init(void) {
-	atexit(show_alloc_mem);
-}
-
-__attribute((destructor)) void fini(void) {
-	show_alloc_mem();
-}
+static log_t *logs	   = NULL;
+static int	  len	   = 0;
 
 void save_log(void *ptr, size_t size) {
-	void  *stack[MAX_STACK];
-	int	   ret = backtrace(stack, MAX_STACK);
-	log_t *log = _malloc(sizeof(*log));
-
-	log->next		= stack_log;
-	log->ptr		= ptr;
-	log->size		= size;
-	log->stack		= _malloc(ret * sizeof(void *));
-	log->stack_size = ret;
-
-	for (int i = 0; i != ret; i++) {
-		log->stack[i] = stack[i];
+	if (!logs) {
+		logs = allocate(1024 * PAGESIZE);
 	}
 
-	stack_log = log;
+	logs[len] = (log_t){ ptr, size, 0 };
+	len++;
 }
 
-void print_log(void) {
-	ft_printf("log:\n");
-	for (log_t *log = stack_log; log; log = log->next) {
-		ft_printf("%p %d\n", log->ptr, log->size);
+void show_logs(void) {
+	ft_printf("        ptr    | freed | size\n");
+	for (int i = 0; i < len; i++) {
+		log_t *log	 = &logs[i];
+		char  *freed = log->freed ? GREEN "Yes  " DEFAULT : RED "No   " DEFAULT;
 
-		backtrace_symbols_fd(log->stack, log->stack_size, 1);
-		ft_printf("\n");
+		ft_printf("%p | %s | %d\n", log->ptr, freed, log->size);
 	}
 
 	fflush(stdout);
 }
 
+log_t *get_log(void *ptr) {
+	for (int i = 0; i < len; i++) {
+		log_t *log = &logs[i];
+
+		if (log->ptr == ptr) {
+			return log;
+		}
+	}
+
+	return NULL;
+}
+
 void show_alloc_mem(void) {
 	ft_printf("--- Zones ---\n");
 	for (zone_t *zone = zones; zone != NULL; zone = zone->next) {
-		ft_printf("capacity: %d\n", zone->capacity);
-		ft_printf("\t%p | %s %d\n", (void *)zone, "zone ", ZONESIZE);
+		ft_printf("%p | %d\n", (void *)zone, zone->capacity);
 
 		for (chunk_t *chunk = chunks(zone); chunk->size; chunk = next(chunk)) {
-			ft_printf("\t%p | %s %d\n", (void *)chunk, "chunk", CHUNKSIZE);
-			ft_printf("\t%p | %s %d\n",
+			ft_printf("\t%p | %s | %d\n",
 					  mem(chunk),
-					  chunk->used ? "+++++" : "-----",
+					  chunk->used ? "x" : " ",
 					  chunk->size);
 		}
 
-		ft_printf("\n");
+		ft_printf("%p\n", zone + zone->capacity);
 	}
 }
 
