@@ -19,11 +19,11 @@ zone_t *map(size_t size) {
 	zone->next	   = NULL;
 	zone->capacity = capacity;
 
-	chunk_t *chunk = chunks(zone);
+	chunk_t *chunk = begin(zone);
 
-	*chunk = new (capacity - header_size);
+	*chunk = (chunk_t){ capacity - header_size, 0 };
 
-	*next(chunk) = new (0);
+	*next(chunk) = (chunk_t){ 0, 0 };
 
 	return zone;
 }
@@ -46,6 +46,21 @@ void push(zone_t **zones, zone_t *new) {
 	*zones = new;
 }
 
-chunk_t *chunks(zone_t *zone) {
+chunk_t *begin(zone_t *zone) {
 	return (chunk_t *)((uintptr_t)zone + ZONESIZE);
 }
+
+chunk_t *end(zone_t *zone) {
+	return (chunk_t *)((uintptr_t)zone + zone->capacity);
+}
+
+void merge(zone_t *zone, chunk_t *chunk) {
+	chunk_t *n = next(chunk);
+
+	while (n != end(zone) && !n->used) {
+		chunk->size += CHUNKSIZE + n->size;
+
+		n = next(chunk);
+	}
+}
+

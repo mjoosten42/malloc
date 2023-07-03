@@ -1,7 +1,8 @@
-#include <stddef.h> // size_t
-#include <unistd.h> // getpagesize
+#include <stddef.h>		// size_t, max_align_t
+#include <unistd.h> 	// getpagesize
+#include <stdalign.h>	// alignof
 
-#define ALIGNMENT 16 // TODO
+#define ALIGNMENT alignof(max_align_t)
 #define PAGESIZE getpagesize()
 
 #define ALIGN(x, alignment) ((x + alignment - 1) & ~(alignment - 1))

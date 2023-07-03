@@ -35,6 +35,9 @@ void	unmap(zone_t *zone, zone_t *prev);
 
 void push(zone_t **lst, zone_t *new);
 
-chunk_t *chunks(zone_t *zone);
+chunk_t *begin(zone_t *zone);
+chunk_t *end(zone_t *zone);
+
+void	 merge(zone_t *zone, chunk_t *chunk);
 
 #endif // ZONE_H

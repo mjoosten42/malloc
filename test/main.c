@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <stdalign.h>
+#include <unistd.h>
 
 #define SIZE	32
 #define MAX 	100
@@ -30,6 +32,8 @@ int main(void) {
 			write(-1, ptrs[r], 1);			
 		}
 	}
+
+	printf("align: %zu\n", alignof(max_align_t));
 
 	// show_logs();
 	// show_alloc_mem();

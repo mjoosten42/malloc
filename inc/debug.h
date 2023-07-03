@@ -37,6 +37,9 @@ typedef struct log log_t;
 void save_log(void *ptr, size_t size);
 void show_logs(void);
 
+size_t	nb_pointers(void);
+void	*pointers(void);
+
 log_t *get_log(void *ptr);
 
 #endif
