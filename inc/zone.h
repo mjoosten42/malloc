@@ -2,10 +2,11 @@
 #define ZONE_H
 
 #include "chunk.h"
-
+#include "memory.h" // ALIGN
 #include <stddef.h> // size_t
 
-#define ZONESIZE sizeof(zone_t)
+#define ZONESIZE ALIGN(sizeof(zone_t), ALIGNMENT)
+#define HEADERSIZE (ZONESIZE + CHUNKSIZE)
 
 /* [ ZONE  ]	sizeof(zone_t)
  * [ CHUNK ] 	sizeof(chunk_t)
@@ -32,12 +33,10 @@ typedef struct zone zone_t;
 
 zone_t *map(size_t size);
 void	unmap(zone_t *zone, zone_t *prev);
+void	push(zone_t **lst, zone_t *new);
 
-void push(zone_t **lst, zone_t *new);
+chunk_t *chunks(const zone_t *zone);
 
-chunk_t *begin(zone_t *zone);
-chunk_t *end(zone_t *zone);
-
-void	 merge(zone_t *zone, chunk_t *chunk);
+void merge(chunk_t *chunk);
 
 #endif // ZONE_H

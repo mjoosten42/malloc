@@ -1,9 +1,6 @@
 #include "impl.h"	// _malloc
 #include "memory.h" // ALIGN, ALIGNMENT
-
-// TODO: remove
 #include "debug.h"
-#include "libft.h"
 
 #include <stdio.h>
 
@@ -16,10 +13,7 @@ void *malloc(size_t size) {
 
 	void *ret = _malloc(ALIGN(size, ALIGNMENT));
 
-	LOG("malloc(%d):", size);
-	LOG("\t\t%p\n", ret);
-
-	LOCKED(save_log(ret, size));
+	LOCKED(LOG("malloc(%lu):\t\t%p\n", size, ret));
 
 	return ret;
 }

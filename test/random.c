@@ -5,18 +5,24 @@
 #include <string.h>
 #include <stdalign.h>
 #include <unistd.h>
+#include <libgen.h>
+#include "libft.h"
 
-#define SIZE	32
-#define MAX 	100
+#define SIZE	1024
+#define MAX 	10000
 
-int main(void) {
-	srand(time(NULL));
-
+int main(int argc, char *argv[]) {
 	void	*ptrs[SIZE] = { 0 };
 	int		used[SIZE] = { 0 };
-	
-	size_t	max = rand();
 
+	if (argc < 2) {
+		ft_printf("Usage: %s number\n", basename(argv[0]));
+		exit(1);
+	}
+
+	srand(time(NULL));
+	
+	size_t	max = strtol(argv[1], NULL, 10);
 	for (size_t i = 0; i != max; i++) {
 		size_t	r = rand() % SIZE;
 
@@ -24,7 +30,11 @@ int main(void) {
 			free(ptrs[r]);
 			used[r] = 0;
 		} else {
-			ptrs[r] = malloc(1 + rand() % MAX);
+			if (r % 2) {
+				ptrs[r] = malloc(1 + rand() % MAX);
+			} else {
+				ptrs[r] = realloc(ptrs[r], 1 + rand() % MAX);
+			}
 			if (!ptrs[r]) {
 				return 1;
 			}
@@ -33,13 +43,5 @@ int main(void) {
 		}
 	}
 
-<<<<<<< HEAD
-	printf("align: %zu\n", alignof(max_align_t));
-
-	// show_logs();
-	// show_alloc_mem();
-=======
-
-
->>>>>>> parent of 36a1521... Added fixed-size log
+	show_alloc_mem();
 }

@@ -12,16 +12,16 @@ void split(chunk_t *chunk, size_t size) {
 	chunk->size = size;
 
 	if (remaining > CHUNKSIZE) {
-		*next(chunk) = new (remaining - CHUNKSIZE);
+		*next(chunk) = (chunk_t){ remaining - CHUNKSIZE, 0 };
 	} else {
 		chunk->size += remaining;
 	}
 }
 
-chunk_t *to_chunk(void *ptr) {
-	return (chunk_t *)((uintptr_t)ptr - CHUNKSIZE);
-}
-
 void *mem(const chunk_t *chunk) {
 	return (void *)((uintptr_t)chunk + CHUNKSIZE);
+}
+
+chunk_t *to_chunk(void *ptr) {
+	return (chunk_t *)((uintptr_t)ptr - CHUNKSIZE);
 }

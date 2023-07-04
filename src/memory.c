@@ -10,11 +10,11 @@ void *allocate(size_t size) {
 	int	  flags = MAP_ANONYMOUS | MAP_PRIVATE;
 	void *ptr	= mmap(NULL, size, prot, flags, -1, 0);
 
-	LOG("mmap:\t\t\t%p\t%d\n", ptr, size);
+	LOCKED(LOG("mmap(%lu):\t\t%p\n", size, ptr));
 
 	if (ptr == MAP_FAILED) {
 		ptr = NULL;
-		perror("mmap"); // TODO: remove
+		perror("mmap");
 		errno = ENOMEM;
 	}
 
@@ -22,7 +22,11 @@ void *allocate(size_t size) {
 }
 
 void deallocate(void *ptr, size_t size) {
-	LOG("munmap:\t\t\t%p\t%d\n", ptr, size);
+	LOCKED(LOG("munmap(%p, %lu)", ptr, size));
 
-	munmap(ptr, size);
+	int ret = munmap(ptr, size);
+
+	if (ret < 0) {
+		perror("munmap");
+	}
 }

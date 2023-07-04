@@ -29,7 +29,7 @@ OBJECTS = $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%,$(SOURCES:.c=.o))
 DEBUG ?= 1
 
 ifeq ($(DEBUG), 1)
-	CFLAGS += -O0 -g -DDEBUG -fsanitize=undefined 
+	CFLAGS += -O0 -g -DDEBUG
 endif
 
 all: $(NAME)
@@ -43,8 +43,10 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 $(OBJ_DIR):
 	mkdir -p $@
 
+F ?= random
+
 test: all
-	$(CC) $(CFLAGS) $(LIBFT) $(INCLUDE) -Wl,-rpath,. test/main.c -L. -lmalloc
+	$(CC) $(CFLAGS) $(LIBFT) $(INCLUDE) -Wl,-rpath,. test/$(F).c -L. -lmalloc -o $(F)
 
 clean:
 	make -C $(LIB_DIR)/libft clean

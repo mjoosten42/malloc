@@ -3,7 +3,9 @@
 
 #include <stddef.h>
 
-#define CHUNKSIZE sizeof(chunk_t)
+#include "memory.h" // ALIGN
+
+#define CHUNKSIZE ALIGN(sizeof(chunk_t), ALIGNMENT)
 
 struct chunk {
 	size_t size;
@@ -12,7 +14,6 @@ struct chunk {
 
 typedef struct chunk chunk_t;
 
-chunk_t new(size_t size);
 chunk_t *next(const chunk_t *chunk);
 chunk_t *to_chunk(void *ptr);
 void	 split(chunk_t *chunk, size_t size);
