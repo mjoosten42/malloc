@@ -29,7 +29,7 @@ OBJECTS = $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%,$(SOURCES:.c=.o))
 DEBUG ?= 1
 
 ifeq ($(DEBUG), 1)
-	CFLAGS += -O0 -g -DDEBUG
+	CFLAGS += -O0 -g -DDEBUG -fsanitize=undefined 
 endif
 
 all: $(NAME)

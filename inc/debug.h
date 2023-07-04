@@ -11,10 +11,6 @@
 	#define LOG(format, ...)
 #endif
 
-#define GREEN "\033[0;32m"
-#define RED "\033[0;31m"
-#define DEFAULT "\033[0m"
-
 #define LOCKED(x)            \
 	{                        \
 		static int lock = 0; \
@@ -27,19 +23,25 @@
 	}
 
 struct log {
-	void  *ptr;
-	size_t size;
-	int	   freed;
+	struct log *next;
+	void	   *ptr;
+	size_t		size;
+	void	  **stack;
+	size_t		stack_size;
 };
 
 typedef struct log log_t;
 
 void save_log(void *ptr, size_t size);
+<<<<<<< HEAD
 void show_logs(void);
 
 size_t	nb_pointers(void);
 void	*pointers(void);
 
 log_t *get_log(void *ptr);
+=======
+void print_log(void);
+>>>>>>> parent of 36a1521... Added fixed-size log
 
 #endif

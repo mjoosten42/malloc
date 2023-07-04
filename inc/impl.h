@@ -6,9 +6,6 @@
 
 #include <stddef.h> // size_t
 
-#define SCRIBBLE 0xAA
-#define PRESCRIBBLE 0x55
-
 #define MIN(a, b) (a < b ? a : b)
 
 extern zone_t *zones;

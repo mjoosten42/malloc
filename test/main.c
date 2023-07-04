@@ -15,7 +15,7 @@ int main(void) {
 	void	*ptrs[SIZE] = { 0 };
 	int		used[SIZE] = { 0 };
 	
-	size_t	max = rand() % MAX;
+	size_t	max = rand();
 
 	for (size_t i = 0; i != max; i++) {
 		size_t	r = rand() % SIZE;
@@ -28,13 +28,18 @@ int main(void) {
 			if (!ptrs[r]) {
 				return 1;
 			}
-			used[r] = 42;
+			used[r] = 1;
 			write(-1, ptrs[r], 1);			
 		}
 	}
 
+<<<<<<< HEAD
 	printf("align: %zu\n", alignof(max_align_t));
 
 	// show_logs();
 	// show_alloc_mem();
+=======
+
+
+>>>>>>> parent of 36a1521... Added fixed-size log
 }

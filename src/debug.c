@@ -1,15 +1,15 @@
 #include "debug.h"
 
-#include "impl.h" // _malloc
+#include "execinfo.h" // backtrace
+#include "impl.h"	  // _malloc
 #include "libft.h"
 #include "malloc.h" // show_alloc_mem
-#include "memory.h"
 
-#include <stdint.h>
+#define MAX_STACK 32
 
-static log_t *logs	   = NULL;
-static int	  len	   = 0;
+static void *stack_log = NULL;
 
+<<<<<<< HEAD
 void f(void) {
 	ft_printf("atexit\n");
 	show_logs();
@@ -34,21 +34,36 @@ void save_log(void *ptr, size_t size) {
 	}
 
 	logs[len++] = (log_t){ ptr, size, 0 };
+=======
+__attribute((constructor)) void init(void) {
+	atexit(show_alloc_mem);
 }
 
-void show_logs(void) {
-	ft_printf("        ptr    | freed | size\n");
-	for (int i = 0; i < len; i++) {
-		log_t *log	 = &logs[i];
-		char  *freed = log->freed ? GREEN "Yes  " DEFAULT : RED "No   " DEFAULT;
+__attribute((destructor)) void fini(void) {
+	show_alloc_mem();
+>>>>>>> parent of 36a1521... Added fixed-size log
+}
 
-		ft_printf("%p | %s | %d\n", log->ptr, freed, log->size);
+void save_log(void *ptr, size_t size) {
+	void  *stack[MAX_STACK];
+	int	   ret = backtrace(stack, MAX_STACK);
+	log_t *log = _malloc(sizeof(*log));
+
+	log->next		= stack_log;
+	log->ptr		= ptr;
+	log->size		= size;
+	log->stack		= _malloc(ret * sizeof(void *));
+	log->stack_size = ret;
+
+	for (int i = 0; i != ret; i++) {
+		log->stack[i] = stack[i];
 	}
 }
 
 size_t nb_pointers(void) {
 	size_t count = 0;
 
+<<<<<<< HEAD
 	for (zone_t *zone = zones; zone; zone = zone->next) {
 		for (chunk_t *chunk = chunks(zone); chunk->size; chunk = next(chunk)) {
 			if (chunk->used) {
@@ -81,34 +96,46 @@ void *pointers(void) {
 	ret[i] = NULL;
 
 	return ret;
+=======
+	stack_log = log;
+>>>>>>> parent of 36a1521... Added fixed-size log
 }
 
-log_t *get_log(void *ptr) {
-	for (int i = 0; i < len; i++) {
-		log_t *log = &logs[i];
+void print_log(void) {
+	ft_printf("log:\n");
+	for (log_t *log = stack_log; log; log = log->next) {
+		ft_printf("%p %d\n", log->ptr, log->size);
 
-		if (log->ptr == ptr) {
-			return log;
-		}
+		backtrace_symbols_fd(log->stack, log->stack_size, 1);
+		ft_printf("\n");
 	}
 
-	return NULL;
+	fflush(stdout);
 }
 
 void show_alloc_mem(void) {
 	ft_printf("--- Zones ---\n");
 	for (zone_t *zone = zones; zone != NULL; zone = zone->next) {
+<<<<<<< HEAD
 			
 			ft_printf("%p | %d\n", (void *)zone, zone->capacity);
 
 		for (chunk_t *chunk = chunks(zone); chunk; chunk = next(chunk)) {
 			ft_printf("\t%p | %s | %d\n",
+=======
+		ft_printf("capacity: %d\n", zone->capacity);
+		ft_printf("\t%p | %s %d\n", (void *)zone, "zone ", ZONESIZE);
+
+		for (chunk_t *chunk = chunks(zone); chunk->size; chunk = next(chunk)) {
+			ft_printf("\t%p | %s %d\n", (void *)chunk, "chunk", CHUNKSIZE);
+			ft_printf("\t%p | %s %d\n",
+>>>>>>> parent of 36a1521... Added fixed-size log
 					  mem(chunk),
-					  chunk->used ? "x" : " ",
+					  chunk->used ? "+++++" : "-----",
 					  chunk->size);
 		}
 
-		ft_printf("%p\n", zone + zone->capacity);
+		ft_printf("\n");
 	}
 }
 
