@@ -43,5 +43,5 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	show_alloc_mem();
+	show_alloc_mem_ex();
 }

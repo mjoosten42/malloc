@@ -1,12 +1,8 @@
 #include "chunk.h"
+#include "debug.h" // LOG
 #include "impl.h"
 
 #include <stdint.h> // uintptr_t
-#include <stdlib.h> // abort
-
-// TODO: remove
-#include "debug.h"
-#include "libft.h"
 
 void free(void *ptr) {
 	LOG("free(%p)\n", ptr);
@@ -23,5 +19,14 @@ void free(void *ptr) {
  * Instead, cleanup is done at allocation time
  */
 void _free(void *ptr) {
-	to_chunk(ptr)->used = 0;
+	chunk_t *chunk = ptr_to_chunk(ptr);
+	zone_t *zone = chunk_to_zone(chunk);
+
+	chunk->used = 0;
+
+	defragment(zone);
+
+	if (!is_used(zone)) {
+		unmap(zone);
+	}
 }

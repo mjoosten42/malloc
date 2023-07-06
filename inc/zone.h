@@ -3,10 +3,10 @@
 
 #include "chunk.h"
 #include "memory.h" // ALIGN
+
 #include <stddef.h> // size_t
 
 #define ZONESIZE ALIGN(sizeof(zone_t), ALIGNMENT)
-#define HEADERSIZE (ZONESIZE + CHUNKSIZE)
 
 /* [ ZONE  ]	sizeof(zone_t)
  * [ CHUNK ] 	sizeof(chunk_t)
@@ -26,17 +26,22 @@
 // mmap header
 struct zone {
 	struct zone *next;
+	struct zone *prev;
 	size_t		 capacity;
 };
 
 typedef struct zone zone_t;
 
 zone_t *map(size_t size);
-void	unmap(zone_t *zone, zone_t *prev);
+void	unmap(zone_t *zone);
 void	push(zone_t **lst, zone_t *new);
+void	defragment(zone_t *zone);
+
+int		is_used(const zone_t *zone);
 
 chunk_t *chunks(const zone_t *zone);
+zone_t	*chunk_to_zone(const chunk_t *chunk);
 
-void merge(chunk_t *chunk);
+size_t	lst_size(zone_t *zones);
 
 #endif // ZONE_H

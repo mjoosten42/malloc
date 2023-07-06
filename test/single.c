@@ -6,5 +6,5 @@ int main(void) {
 	ptr[0] = 42;
 
 	free(ptr);
-	show_logs();
+	show_alloc_mem();
 }

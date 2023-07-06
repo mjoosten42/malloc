@@ -1,8 +1,8 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-#include <stdio.h> // printf"
 #include <stddef.h> // size_t
+#include <stdio.h>	// printf"
 
 #ifdef DEBUG
 	#define LOG(format, ...) printf(format, __VA_ARGS__)
@@ -10,7 +10,7 @@
 	#define LOG(format, ...)
 #endif
 
-#define LOCKED(...)            \
+#define LOCKED(...)          \
 	{                        \
 		static int lock = 0; \
                              \

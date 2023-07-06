@@ -22,6 +22,6 @@ void *mem(const chunk_t *chunk) {
 	return (void *)((uintptr_t)chunk + CHUNKSIZE);
 }
 
-chunk_t *to_chunk(void *ptr) {
+chunk_t *ptr_to_chunk(void *ptr) {
 	return (chunk_t *)((uintptr_t)ptr - CHUNKSIZE);
 }

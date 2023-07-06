@@ -2,40 +2,22 @@
 
 #include "stdint.h" // uintptr_t
 #include "zone.h"
+#include "impl.h" // LIMIT
 
 iter_t find(zone_t *zones, size_t size) {
-	zone_t	tmp	 = (zone_t){ .next = NULL };
-	zone_t *prev = NULL;
+	for (zone_t *zone = zones; zone; zone = zone->next) {
 
-	for (zone_t *zone = zones; zone; prev = zone, zone = zone->next) {
-		int used = 0;
-
-		if (zone->capacity - (ZONESIZE + 2 * CHUNKSIZE) < size) {
-			continue;
-		}
+		// TODO: skip LARGE zones	
+		// if (zone->capacity > LIMIT) {
+		// 	continue;
+		// }
 
 		for (chunk_t *chunk = chunks(zone); chunk->size; chunk = next(chunk)) {
-			if (!chunk->used) {
-				merge(chunk);
-			}
-
 			if (!chunk->used && chunk->size >= size) {
 				return (iter_t){ zone, chunk };
 			}
-
-			if (chunk->used) {
-				used = 1;
-			}
 		}
 
-		if (!used) {
-			tmp = *zone;
-
-			// After munmap, reading from zone would segfault
-			unmap(zone, prev);
-
-			zone = &tmp;
-		}
 	}
 
 	return (iter_t){ NULL, NULL };

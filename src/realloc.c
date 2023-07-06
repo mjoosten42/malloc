@@ -30,7 +30,7 @@ void *realloc(void *ptr, size_t size) {
  * If not, allocate a new chunk, copy and free the old chunk
  */
 void *_realloc(void *ptr, size_t size) {
-	chunk_t *chunk = to_chunk(ptr);
+	chunk_t *chunk = ptr_to_chunk(ptr);
 	void	*ret   = NULL;
 
 	merge(chunk);

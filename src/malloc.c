@@ -1,6 +1,6 @@
+#include "debug.h"
 #include "impl.h"	// _malloc
 #include "memory.h" // ALIGN, ALIGNMENT
-#include "debug.h"
 
 #include <stdio.h>
 
@@ -19,8 +19,15 @@ void *malloc(size_t size) {
 }
 
 void *_malloc(size_t size) {
-	iter_t	 it	   = find(zones, size);
-	chunk_t *chunk = it.chunk;
+	int 	is_small = size <= LIMIT;
+	
+	iter_t	 it	   = (iter_t){ NULL, NULL };
+	chunk_t *chunk = NULL;
+
+	if (is_small) {
+		it = find(zones, size);
+		chunk = it.chunk;
+	}
 
 	if (!ok(&it)) {
 		zone_t *zone = map(size);
@@ -34,7 +41,9 @@ void *_malloc(size_t size) {
 		chunk = chunks(zone);
 	}
 
-	split(chunk, size);
+	if (is_small) {
+		split(chunk, size);
+	}
 
 	chunk->used = 1;
 
