@@ -1,6 +1,6 @@
 #include "memory.h"
 
-#include "debug.h" // LOG
+#include "debug.h" // LOCKED, LOG
 
 #include <errno.h>	  // errno
 #include <sys/mman.h> // mmap
@@ -22,7 +22,7 @@ void *allocate(size_t size) {
 }
 
 void deallocate(void *ptr, size_t size) {
-	LOCKED(LOG("munmap(%p, %lu)", ptr, size));
+	LOCKED(LOG("munmap(%p, %lu)\n", ptr, size));
 
 	int ret = munmap(ptr, size);
 

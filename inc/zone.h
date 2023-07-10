@@ -37,11 +37,13 @@ void	unmap(zone_t *zone);
 void	push(zone_t **lst, zone_t *new);
 void	defragment(zone_t *zone);
 
-int		is_used(const zone_t *zone);
+int is_used(const zone_t *zone);
 
 chunk_t *chunks(const zone_t *zone);
-zone_t	*chunk_to_zone(const chunk_t *chunk);
+chunk_t *zone_end(const zone_t *zone);
 
-size_t	lst_size(zone_t *zones);
+zone_t *chunk_to_zone(const chunk_t *chunk);
+
+size_t lst_size(zone_t *zones);
 
 #endif // ZONE_H

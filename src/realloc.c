@@ -25,15 +25,19 @@ void *realloc(void *ptr, size_t size) {
 	return ret;
 }
 
-/* Increase size of chunk as much as possible by merging with unused blocks.
- * If sufficient, split and be done.
+/* Merge with next chunk if it's unused.
+ * If size is sufficient, split and be done.
  * If not, allocate a new chunk, copy and free the old chunk
  */
 void *_realloc(void *ptr, size_t size) {
 	chunk_t *chunk = ptr_to_chunk(ptr);
+	zone_t	*zone  = chunk_to_zone(chunk);
+	chunk_t *n	   = next(chunk);
 	void	*ret   = NULL;
 
-	merge(chunk);
+	if (n != zone_end(zone) && !n->used) {
+		chunk->size += CHUNKSIZE + n->size;
+	}
 
 	if (chunk->size >= size) {
 		split(chunk, size);

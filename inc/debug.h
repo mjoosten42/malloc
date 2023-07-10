@@ -4,7 +4,7 @@
 #include <stddef.h> // size_t
 #include <stdio.h>	// printf"
 
-#ifdef DEBUG
+#ifdef VERBOSE
 	#define LOG(format, ...) printf(format, __VA_ARGS__)
 #else
 	#define LOG(format, ...)

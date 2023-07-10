@@ -19,17 +19,14 @@ void *malloc(size_t size) {
 }
 
 void *_malloc(size_t size) {
-	int 	is_small = size <= LIMIT;
-	
-	iter_t	 it	   = (iter_t){ NULL, NULL };
-	chunk_t *chunk = NULL;
+	chunk_t *chunk	  = NULL;
+	int		 is_small = size <= LIMIT;
 
 	if (is_small) {
-		it = find(zones, size);
-		chunk = it.chunk;
+		chunk = find(zones, size);
 	}
 
-	if (!ok(&it)) {
+	if (!chunk) {
 		zone_t *zone = map(size);
 
 		if (!zone) {
@@ -49,3 +46,22 @@ void *_malloc(size_t size) {
 
 	return mem(chunk);
 }
+
+chunk_t *find(zone_t *zones, size_t size) {
+	for (zone_t *zone = zones; zone; zone = zone->next) {
+		chunk_t *end = zone_end(zone);
+
+		if (zone->capacity > LIMIT) {
+			continue;
+		}
+
+		for (chunk_t *chunk = chunks(zone); chunk != end; chunk = next(chunk)) {
+			if (!chunk->used && chunk->size >= size) {
+				return chunk;
+			}
+		}
+	}
+
+	return NULL;
+}
+

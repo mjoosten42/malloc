@@ -20,7 +20,7 @@ void free(void *ptr) {
  */
 void _free(void *ptr) {
 	chunk_t *chunk = ptr_to_chunk(ptr);
-	zone_t *zone = chunk_to_zone(chunk);
+	zone_t	*zone  = chunk_to_zone(chunk);
 
 	chunk->used = 0;
 

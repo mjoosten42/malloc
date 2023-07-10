@@ -8,7 +8,7 @@
 #include <stdint.h> // uintptr_t
 
 zone_t *map(size_t size) {
-	size_t	header_size = ZONESIZE + 2 * CHUNKSIZE;
+	size_t	header_size = ZONESIZE + CHUNKSIZE;
 	size_t	capacity	= ALIGN(size + header_size, PAGESIZE);
 	zone_t *zone		= allocate(capacity);
 
@@ -17,14 +17,12 @@ zone_t *map(size_t size) {
 	}
 
 	zone->next	   = NULL;
-	zone->prev	= NULL;
+	zone->prev	   = NULL;
 	zone->capacity = capacity;
 
 	chunk_t *chunk = chunks(zone);
 
 	*chunk = (chunk_t){ capacity - header_size, 0 };
-
-	*next(chunk) = (chunk_t){ 0, 0 };
 
 	return zone;
 }
@@ -46,21 +44,31 @@ void unmap(zone_t *zone) {
 }
 
 void push(zone_t **zones, zone_t *new) {
-	new->next = *zones;
+	zone_t *head = *zones;
+
+	new->next = head;
+
+	if (head) {
+		head->prev = new;
+	}
 
 	*zones = new;
 }
 
-void	defragment(zone_t *zone) {
-	for (chunk_t *chunk = chunks(zone); chunk->size; chunk = next(chunk)) {
-		for (chunk_t *n = chunk; n->size && !n->used; n = next(n)) {
+void defragment(zone_t *zone) {
+	chunk_t *end = zone_end(zone);
+
+	for (chunk_t *chunk = chunks(zone); chunk != end; chunk = next(chunk)) {
+		for (chunk_t *n = next(chunk); n != end && !n->used; n = next(n)) {
 			chunk->size += CHUNKSIZE + n->size;
 		}
 	}
 }
 
-int		is_used(const zone_t *zone) {
-	for (chunk_t *chunk = chunks(zone); chunk->size; chunk = next(chunk)) {
+int is_used(const zone_t *zone) {
+	chunk_t *end = zone_end(zone);
+
+	for (chunk_t *chunk = chunks(zone); chunk != end; chunk = next(chunk)) {
 		if (chunk->used) {
 			return 1;
 		}
@@ -73,18 +81,14 @@ chunk_t *chunks(const zone_t *zone) {
 	return (chunk_t *)((uintptr_t)zone + ZONESIZE);
 }
 
-zone_t	*chunk_to_zone(const chunk_t *chunk) {
-	zone_t *zone = NULL;
+chunk_t *zone_end(const zone_t *zone) {
+	return (chunk_t *)((uintptr_t)zone + zone->capacity);
+}
 
-	if (chunk->size > LIMIT) {
-		// Assume this is the first chunk
-		zone = (zone_t *)((uintptr_t)chunk - ZONESIZE);
-	} else {
-		// Assume zone contains only one page
-		zone = (zone_t *)((uintptr_t)chunk & ~(PAGESIZE - 1));
-	}
-
-	return zone;
+// Zero out the last few bits
+// This works because no chunks are allowed to start past PAGESIZE of a zone
+zone_t *chunk_to_zone(const chunk_t *chunk) {
+	return (zone_t *)((uintptr_t)chunk & ~(PAGESIZE - 1));
 }
 
 size_t lst_size(zone_t *zones) {
