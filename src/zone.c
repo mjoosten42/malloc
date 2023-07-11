@@ -8,9 +8,8 @@
 #include <stdint.h> // uintptr_t
 
 zone_t *map(size_t size) {
-	size_t	header_size = ZONESIZE + CHUNKSIZE;
-	size_t	capacity	= ALIGN(size + header_size, PAGESIZE);
-	zone_t *zone		= allocate(capacity);
+	size_t	capacity = ALIGN(size + HEADERSIZE, PAGESIZE);
+	zone_t *zone	 = allocate(capacity);
 
 	if (!zone) {
 		return NULL;
@@ -20,9 +19,10 @@ zone_t *map(size_t size) {
 	zone->prev	   = NULL;
 	zone->capacity = capacity;
 
-	chunk_t *chunk = chunks(zone);
+	*zone->chunk = (chunk_t){ capacity - HEADERSIZE, 0 };
 
-	*chunk = (chunk_t){ capacity - header_size, 0 };
+	// close with zero-size chunk
+	*next(zone->chunk) = (chunk_t){ 0, 1 };
 
 	return zone;
 }
@@ -56,19 +56,15 @@ void push(zone_t **zones, zone_t *new) {
 }
 
 void defragment(zone_t *zone) {
-	chunk_t *end = zone_end(zone);
-
-	for (chunk_t *chunk = chunks(zone); chunk != end; chunk = next(chunk)) {
-		for (chunk_t *n = next(chunk); n != end && !n->used; n = next(n)) {
+	for (chunk_t *chunk = zone->chunk; chunk->size; chunk = next(chunk)) {
+		for (chunk_t *n = next(chunk); n->size && !n->used; n = next(n)) {
 			chunk->size += CHUNKSIZE + n->size;
 		}
 	}
 }
 
-int is_used(const zone_t *zone) {
-	chunk_t *end = zone_end(zone);
-
-	for (chunk_t *chunk = chunks(zone); chunk != end; chunk = next(chunk)) {
+int is_used(zone_t *zone) {
+	for (chunk_t *chunk = zone->chunk; chunk->size; chunk = next(chunk)) {
 		if (chunk->used) {
 			return 1;
 		}
@@ -77,17 +73,13 @@ int is_used(const zone_t *zone) {
 	return 0;
 }
 
-chunk_t *chunks(const zone_t *zone) {
-	return (chunk_t *)((uintptr_t)zone + ZONESIZE);
-}
-
-chunk_t *zone_end(const zone_t *zone) {
+chunk_t *zone_end(zone_t *zone) {
 	return (chunk_t *)((uintptr_t)zone + zone->capacity);
 }
 
 // Zero out the last few bits
 // This works because no chunks are allowed to start past PAGESIZE of a zone
-zone_t *chunk_to_zone(const chunk_t *chunk) {
+zone_t *chunk_to_zone(chunk_t *chunk) {
 	return (zone_t *)((uintptr_t)chunk & ~(PAGESIZE - 1));
 }
 

@@ -11,7 +11,9 @@ void free(void *ptr) {
 		return;
 	}
 
+	pthread_mutex_lock(&mutex);
 	_free(ptr);
+	pthread_mutex_unlock(&mutex);
 }
 
 /* This does not merge chunks or unmap zones,

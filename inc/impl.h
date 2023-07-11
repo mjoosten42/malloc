@@ -3,7 +3,8 @@
 
 #include "zone.h" // zone_t
 
-#include <stddef.h>	 // size_t
+#include <stddef.h> // size_t
+#include <pthread.h> // mutex
 
 #define MIN(a, b) (a < b ? a : b)
 
@@ -11,6 +12,7 @@
 #define LIMIT 4000UL
 
 extern zone_t *zones;
+extern pthread_mutex_t mutex;
 
 void  _free(void *ptr);
 void *_malloc(size_t size);

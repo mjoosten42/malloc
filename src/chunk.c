@@ -9,17 +9,11 @@ chunk_t *next(const chunk_t *chunk) {
 void split(chunk_t *chunk, size_t size) {
 	size_t remaining = chunk->size - size;
 
-	chunk->size = size;
-
 	if (remaining > CHUNKSIZE) {
-		*next(chunk) = (chunk_t){ remaining - CHUNKSIZE, 0 };
-	} else {
-		chunk->size += remaining;
-	}
-}
+		chunk->size = size;
 
-void *mem(const chunk_t *chunk) {
-	return (void *)((uintptr_t)chunk + CHUNKSIZE);
+		*next(chunk) = (chunk_t){ remaining - CHUNKSIZE, 0 };
+	}
 }
 
 chunk_t *ptr_to_chunk(void *ptr) {

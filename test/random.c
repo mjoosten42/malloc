@@ -8,7 +8,7 @@
 #include <libgen.h>
 
 #define SIZE	32
-#define MAX 	1000000
+#define MAX 	5000
 
 int main(int argc, char *argv[]) {
 	void	*ptrs[SIZE] = { 0 };

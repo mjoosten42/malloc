@@ -4,7 +4,7 @@ TEST = test
 CC = gcc
 
 HFLAGS = -MMD -MP
-CFLAGS = -Wall -Wextra -Werror -Wpedantic
+CFLAGS = -Wall -Wextra -Werror 
 
 SRC_DIR = src
 OBJ_DIR = obj
@@ -27,7 +27,7 @@ INCLUDE += -I lib/libft/include
 OBJECTS = $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%,$(SOURCES:.c=.o))
 
 DEBUG ?= 1
-VERBOSE ?= 0
+VERBOSE ?= 1
 
 ifeq ($(DEBUG), 1)
 	CFLAGS += -O0 -g

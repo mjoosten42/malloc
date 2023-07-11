@@ -24,15 +24,14 @@ void show_alloc_mem(void) {
 
 	for (size_t i = 0; i != size; i++) {
 		zone_t	*zone  = array[i];
-		chunk_t *chunk = chunks(zone);
-		chunk_t *end   = zone_end(zone);
+		chunk_t *chunk = zone->chunk;
 
 		printf(
 			"%s : %p\n", chunk->size > LIMIT ? "LARGE" : "SMALL", (void *)zone);
 
-		for (; chunk != end; chunk = next(chunk)) {
+		for (; chunk->size; chunk = next(chunk)) {
 			printf("%p - %p : %lu bytes\n",
-				   mem(chunk),
+				   chunk->memory,
 				   (void *)next(chunk),
 				   chunk->size);
 		}
@@ -42,13 +41,11 @@ void show_alloc_mem(void) {
 void show_alloc_mem_ex(void) {
 	printf("show_alloc_mem_ex\n");
 	for (zone_t *zone = zones; zone != NULL; zone = zone->next) {
-		chunk_t *end = zone_end(zone);
+		printf("----\t%p | %lu ----\n", (void *)zone, zone->capacity);
 
-		printf("# \t%p | %lu\n", (void *)zone, zone->capacity);
-
-		for (chunk_t *chunk = chunks(zone); chunk != end; chunk = next(chunk)) {
-			printf("| \t%p | %lu %s\n",
-				   mem(chunk),
+		for (chunk_t *chunk = zone->chunk; chunk->size; chunk = next(chunk)) {
+			printf("| \t%p | %lu\t%s\n",
+				   chunk->memory,
 				   chunk->size,
 				   chunk->used ? "x" : " ");
 		}

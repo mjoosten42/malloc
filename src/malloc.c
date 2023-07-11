@@ -3,18 +3,21 @@
 #include "memory.h" // ALIGN, ALIGNMENT
 
 #include <stdio.h>
+#include <pthread.h>
 
 zone_t *zones = NULL;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void *malloc(size_t size) {
 	if (!size) {
 		return NULL;
 	}
 
+	pthread_mutex_lock(&mutex);
 	void *ret = _malloc(ALIGN(size, ALIGNMENT));
+	pthread_mutex_unlock(&mutex);
 
 	LOCKED(LOG("malloc(%lu):\t\t%p\n", size, ret));
-
 	return ret;
 }
 
@@ -35,7 +38,7 @@ void *_malloc(size_t size) {
 
 		push(&zones, zone);
 
-		chunk = chunks(zone);
+		chunk = zone->chunk;
 	}
 
 	if (is_small) {
@@ -44,18 +47,12 @@ void *_malloc(size_t size) {
 
 	chunk->used = 1;
 
-	return mem(chunk);
+	return chunk->memory;
 }
 
 chunk_t *find(zone_t *zones, size_t size) {
 	for (zone_t *zone = zones; zone; zone = zone->next) {
-		chunk_t *end = zone_end(zone);
-
-		if (zone->capacity > LIMIT) {
-			continue;
-		}
-
-		for (chunk_t *chunk = chunks(zone); chunk != end; chunk = next(chunk)) {
+		for (chunk_t *chunk = zone->chunk; chunk->size; chunk = next(chunk)) {
 			if (!chunk->used && chunk->size >= size) {
 				return chunk;
 			}
@@ -64,4 +61,3 @@ chunk_t *find(zone_t *zones, size_t size) {
 
 	return NULL;
 }
-
