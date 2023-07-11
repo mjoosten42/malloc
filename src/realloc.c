@@ -22,7 +22,7 @@ void *realloc(void *ptr, size_t size) {
 	}
 	pthread_mutex_unlock(&mutex);
 
-	LOCKED(LOG("realloc(%p, %lu):\t%p\n", ptr, size, ret));
+	LOG("realloc(%p, %lu):\t%p\n", ptr, size, ret);
 	
 	return ret;
 }

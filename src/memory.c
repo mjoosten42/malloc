@@ -10,9 +10,7 @@ void *allocate(size_t size) {
 	int	  flags = MAP_ANONYMOUS | MAP_PRIVATE;
 	void *ptr	= mmap(NULL, size, prot, flags, -1, 0);
 
-	pthread_mutex_unlock(&mutex);
-	LOCKED(LOG("mmap(%zu):\t\t%p\n", size, ptr));
-	pthread_mutex_lock(&mutex);
+	LOG("mmap(%lu):\t\t%p\n", size, ptr);
 
 	if (ptr == MAP_FAILED) {
 		ptr = NULL;
@@ -24,9 +22,12 @@ void *allocate(size_t size) {
 }
 
 void deallocate(void *ptr, size_t size) {
-	pthread_mutex_unlock(&mutex);
-	LOCKED(LOG("munmap(%p, %zu)\n", ptr, size));
-	pthread_mutex_lock(&mutex);
+	LOG("munmap(%p, %lu)\n", ptr, size);
+
+	if (!size) {
+		LOG("aborting %p\n", ptr);
+		abort();
+	}
 
 	int ret = munmap(ptr, size);
 

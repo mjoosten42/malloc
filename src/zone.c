@@ -57,8 +57,10 @@ void push(zone_t **zones, zone_t *new) {
 
 void defragment(zone_t *zone) {
 	for (chunk_t *chunk = zone->chunk; chunk->size; chunk = next(chunk)) {
-		for (chunk_t *n = next(chunk); n->size && !n->used; n = next(n)) {
-			chunk->size += CHUNKSIZE + n->size;
+		if (!chunk->used) {
+			for (chunk_t *n = next(chunk); n->size && !n->used; n = next(n)) {
+				chunk->size += CHUNKSIZE + n->size;
+			}
 		}
 	}
 }

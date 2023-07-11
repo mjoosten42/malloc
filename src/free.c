@@ -5,7 +5,7 @@
 #include <stdint.h> // uintptr_t
 
 void free(void *ptr) {
-	LOCKED(LOG("free(%p)\n", ptr));
+	LOG("free(%p)\n", ptr);
 
 	if (!ptr) {
 		return;

@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <libgen.h>
 
-#define SIZE	32
+#define SIZE	4
 #define MAX 	5000
 
 int main(int argc, char *argv[]) {

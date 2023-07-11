@@ -15,9 +15,9 @@ void *malloc(size_t size) {
 
 	pthread_mutex_lock(&mutex);
 	void *ret = _malloc(ALIGN(size, ALIGNMENT));
+	LOG("malloc(%lu):\t\t%p\n", size, ret);
 	pthread_mutex_unlock(&mutex);
 
-	LOCKED(LOG("malloc(%lu):\t\t%p\n", size, ret));
 	return ret;
 }
 

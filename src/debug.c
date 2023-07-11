@@ -4,7 +4,6 @@
 #include "malloc.h" // show_alloc_mem
 #include "zone.h"	// zone_t
 
-#include <stdio.h>
 #include <stdlib.h> // qsort
 
 static int compare(const void *first, const void *second) {
@@ -26,11 +25,11 @@ void show_alloc_mem(void) {
 		zone_t	*zone  = array[i];
 		chunk_t *chunk = zone->chunk;
 
-		printf(
+		ft_printf(
 			"%s : %p\n", chunk->size > LIMIT ? "LARGE" : "SMALL", (void *)zone);
 
 		for (; chunk->size; chunk = next(chunk)) {
-			printf("%p - %p : %lu bytes\n",
+			ft_printf("%p - %p : %lu bytes\n",
 				   chunk->memory,
 				   (void *)next(chunk),
 				   chunk->size);
@@ -39,12 +38,12 @@ void show_alloc_mem(void) {
 }
 
 void show_alloc_mem_ex(void) {
-	printf("show_alloc_mem_ex\n");
+	ft_printf("show_alloc_mem_ex\n");
 	for (zone_t *zone = zones; zone != NULL; zone = zone->next) {
-		printf("----\t%p | %lu ----\n", (void *)zone, zone->capacity);
+		ft_printf("----\t%p | %lu ----\n", (void *)zone, zone->capacity);
 
 		for (chunk_t *chunk = zone->chunk; chunk->size; chunk = next(chunk)) {
-			printf("| \t%p | %lu\t%s\n",
+			ft_printf("| \t%p | %lu\t%s\n",
 				   chunk->memory,
 				   chunk->size,
 				   chunk->used ? "x" : " ");
