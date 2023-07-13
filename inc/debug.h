@@ -9,4 +9,6 @@
 	#define LOG(format, ...)
 #endif
 
+void show();
+
 #endif // DEBUG_H

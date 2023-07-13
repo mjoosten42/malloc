@@ -5,7 +5,7 @@
 
 #include <stddef.h>
 
-#define CHUNKSIZE ALIGN(sizeof(chunk_t), ALIGNMENT)
+#define CHUNKSIZE align(sizeof(chunk_t), ALIGNMENT)
 
 struct chunk {
 	size_t		size;

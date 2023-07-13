@@ -3,6 +3,7 @@
 #include "debug.h" // LOCKED, LOG
 
 #include <errno.h>	  // errno
+#include <stdint.h>	  // SIZE_MAX
 #include <sys/mman.h> // mmap
 
 void *allocate(size_t size) {
@@ -24,14 +25,13 @@ void *allocate(size_t size) {
 void deallocate(void *ptr, size_t size) {
 	LOG("munmap(%p, %lu)\n", ptr, size);
 
-	if (!size) {
-		LOG("aborting %p\n", ptr);
-		abort();
-	}
-
 	int ret = munmap(ptr, size);
 
 	if (ret < 0) {
 		perror("munmap");
 	}
+}
+
+size_t align(size_t size, int alignment) {
+	return (size + alignment - 1) & ~(alignment - 1);
 }

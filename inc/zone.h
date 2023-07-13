@@ -6,7 +6,7 @@
 
 #include <stddef.h> // size_t
 
-#define ZONESIZE ALIGN(sizeof(zone_t), ALIGNMENT)
+#define ZONESIZE align(sizeof(zone_t), ALIGNMENT)
 #define HEADERSIZE (ZONESIZE + 2 * CHUNKSIZE)
 
 /* [ ZONE  ]	ZONESIZE
@@ -34,7 +34,7 @@ void	push(zone_t **lst, zone_t *new);
 void defragment(zone_t *zone);
 int	 is_used(zone_t *zone);
 
-zone_t	*chunk_to_zone(chunk_t *chunk);
+zone_t *chunk_to_zone(chunk_t *chunk);
 
 size_t lst_size(zone_t *zones);
 

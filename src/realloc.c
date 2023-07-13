@@ -14,16 +14,15 @@ void *realloc(void *ptr, size_t size) {
 
 	pthread_mutex_lock(&mutex);
 	if (!ptr) {
-		ret = _malloc(ALIGN(size, ALIGNMENT));
+		ret = _malloc(align(size, ALIGNMENT));
 	} else if (!size) {
 		_free(ptr);
 	} else {
-		ret = _realloc(ptr, ALIGN(size, ALIGNMENT));
+		ret = _realloc(ptr, align(size, ALIGNMENT));
 	}
+	LOG("realloc(%p, %lu):\t%p\n", ptr, size, ret);
 	pthread_mutex_unlock(&mutex);
 
-	LOG("realloc(%p, %lu):\t%p\n", ptr, size, ret);
-	
 	return ret;
 }
 
@@ -33,6 +32,7 @@ void *realloc(void *ptr, size_t size) {
  */
 void *_realloc(void *ptr, size_t size) {
 	chunk_t *chunk = ptr_to_chunk(ptr);
+	zone_t	*zone  = chunk_to_zone(chunk);
 	chunk_t *n	   = next(chunk);
 	void	*ret   = NULL;
 
@@ -41,7 +41,9 @@ void *_realloc(void *ptr, size_t size) {
 	}
 
 	if (chunk->size >= size) {
-		split(chunk, size);
+		if (zone->capacity == (size_t)PAGESIZE) {
+			split(chunk, size);
+		}
 
 		ret = chunk->memory;
 	} else {

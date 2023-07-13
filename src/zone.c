@@ -3,12 +3,12 @@
 #include "chunk.h"
 #include "debug.h"
 #include "impl.h"	// zones
-#include "memory.h" // ALIGN, PAGESIZE
+#include "memory.h" // align, PAGESIZE
 
 #include <stdint.h> // uintptr_t
 
 zone_t *map(size_t size) {
-	size_t	capacity = ALIGN(size + HEADERSIZE, PAGESIZE);
+	size_t	capacity = align(size + HEADERSIZE, PAGESIZE);
 	zone_t *zone	 = allocate(capacity);
 
 	if (!zone) {
@@ -28,6 +28,11 @@ zone_t *map(size_t size) {
 }
 
 void unmap(zone_t *zone) {
+	if (!zone->capacity) {
+		LOG("%s:%d\n", __FILE__, __LINE__);
+		abort();
+	}
+
 	if (zone->prev) {
 		zone->prev->next = zone->next;
 	}
