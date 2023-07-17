@@ -6,15 +6,13 @@
 
 #include <stddef.h> // size_t
 
-#define ZONESIZE align(sizeof(zone_t), ALIGNMENT)
-#define HEADERSIZE (ZONESIZE + 2 * CHUNKSIZE)
+#define HEADERSIZE (sizeof(zone_t) + 2 * sizeof(chunk_t)
 
-/* [ ZONE  ]	ZONESIZE
+/* [ ZONE  ]
  * [ CHUNK ] 	CHUNKSIZE
  * [ ..... ]	chunk->size
- * [ CHUNK ]
- * [ ..... ]
  * etc...
+ * [ CHUNK ]	zero size
  */
 
 // mmap header
@@ -36,6 +34,7 @@ int	 is_used(zone_t *zone);
 
 zone_t *chunk_to_zone(chunk_t *chunk);
 
-size_t lst_size(zone_t *zones);
+size_t	 lst_size(zone_t *zones);
+zone_t **zone_list(zone_t *zones);
 
 #endif // ZONE_H

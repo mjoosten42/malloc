@@ -1,5 +1,5 @@
-NAME = libmalloc.so
-TEST = test
+NAME = libft_malloc.so
+HOST = libft_malloc_$(HOSTTYPE).so
 
 CC = gcc
 
@@ -39,8 +39,11 @@ endif
 
 all: $(NAME)
 
-$(NAME): $(OBJECTS) $(LIBFT)
-	$(CC) $(LIBFT) -shared $^ -o $@
+$(NAME): $(HOST)
+	ln -fs $^ $@
+	
+$(HOST): $(OBJECTS) $(LIBFT)
+	$(CC) $(LIBFT) -shared $^ -o $@ 
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -fPIC $(HFLAGS) $(INCLUDE) -c $< -o $@
@@ -51,7 +54,7 @@ $(OBJ_DIR):
 F ?= random
 
 test: all
-	$(CC) $(CFLAGS) $(LIBFT) $(INCLUDE) -Wl,-rpath,. test/$(F).c -L. -lmalloc -o $(F)
+	$(CC) $(CFLAGS) $(LIBFT) $(INCLUDE) -Wl,-rpath,. test/$(F).c -L. -lft_malloc -o $(F)
 
 clean:
 	make -C $(LIB_DIR)/libft clean
@@ -59,7 +62,7 @@ clean:
 
 fclean: clean
 	make -C $(LIB_DIR)/libft fclean
-	$(RM) $(NAME)
+	$(RM) $(NAME) $(HOST)
 
 re:
 	make fclean

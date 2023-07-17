@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <libgen.h>
 
-#define SIZE	4
+#define SIZE	32
 #define MAX 	5000
 
 int main(int argc, char *argv[]) {
@@ -45,5 +45,5 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	show_alloc_mem_ex();
+	show();
 }

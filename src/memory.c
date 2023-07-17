@@ -11,7 +11,7 @@ void *allocate(size_t size) {
 	int	  flags = MAP_ANONYMOUS | MAP_PRIVATE;
 	void *ptr	= mmap(NULL, size, prot, flags, -1, 0);
 
-	LOG("mmap(%lu):\t\t%p\n", size, ptr);
+	LOG("mmap(%lu):\t\t\t%p\n", size, ptr);
 
 	if (ptr == MAP_FAILED) {
 		ptr = NULL;

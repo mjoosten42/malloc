@@ -1,11 +1,10 @@
 #ifndef CHUNK_H
 #define CHUNK_H
 
-#include "memory.h" // ALIGN
-
+#include <stdalign.h>
 #include <stddef.h>
 
-#define CHUNKSIZE align(sizeof(chunk_t), ALIGNMENT)
+#define CHUNKSIZE sizeof(chunk_t)
 
 struct chunk {
 	size_t		size;

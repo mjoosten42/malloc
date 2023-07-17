@@ -2,6 +2,7 @@
 #include "debug.h" // LOG
 #include "impl.h"
 
+#include <signal.h> // TODO: remove
 #include <stdint.h> // uintptr_t
 
 void free(void *ptr) {
@@ -23,6 +24,17 @@ void free(void *ptr) {
 void _free(void *ptr) {
 	chunk_t *chunk = ptr_to_chunk(ptr);
 	zone_t	*zone  = chunk_to_zone(chunk);
+
+	if (!zone->capacity || zone->capacity % PAGESIZE) {
+		zone_t *prev = find_zone(zone);
+
+		show_around(zone, 64);
+		ft_printf("zone: %p %lu\n", zone, zone->capacity);
+		ft_printf("prev: %p\n", prev);
+		raise(SIGTRAP);
+		abort();
+		(void)prev;
+	}
 
 	chunk->used = 0;
 

@@ -4,6 +4,7 @@ SOURCES := \
 	src/debug.c \
 	src/free.c \
 	src/malloc.c \
+	src/memalign.c \
 	src/memory.c \
 	src/realloc.c \
 	src/zone.c \

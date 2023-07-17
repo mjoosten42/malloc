@@ -8,8 +8,9 @@
 #include <stdint.h> // uintptr_t
 
 zone_t *map(size_t size) {
-	size_t	capacity = align(size + HEADERSIZE, PAGESIZE);
-	zone_t *zone	 = allocate(capacity);
+	size_t	header_size = sizeof(zone_t) + 2 * CHUNKSIZE;
+	size_t	capacity	= align(size + header_size, PAGESIZE);
+	zone_t *zone		= allocate(capacity);
 
 	if (!zone) {
 		return NULL;
@@ -19,7 +20,7 @@ zone_t *map(size_t size) {
 	zone->prev	   = NULL;
 	zone->capacity = capacity;
 
-	*zone->chunk = (chunk_t){ capacity - HEADERSIZE, 0 };
+	*zone->chunk = (chunk_t){ capacity - header_size, 0 };
 
 	// close with zero-size chunk
 	*next(zone->chunk) = (chunk_t){ 0, 1 };
@@ -28,11 +29,6 @@ zone_t *map(size_t size) {
 }
 
 void unmap(zone_t *zone) {
-	if (!zone->capacity) {
-		LOG("%s:%d\n", __FILE__, __LINE__);
-		abort();
-	}
-
 	if (zone->prev) {
 		zone->prev->next = zone->next;
 	}
@@ -80,10 +76,6 @@ int is_used(zone_t *zone) {
 	return 0;
 }
 
-chunk_t *zone_end(zone_t *zone) {
-	return (chunk_t *)((uintptr_t)zone + zone->capacity);
-}
-
 // Zero out the last few bits
 // This works because no chunks are allowed to start past PAGESIZE of a zone
 zone_t *chunk_to_zone(chunk_t *chunk) {
@@ -98,4 +90,24 @@ size_t lst_size(zone_t *zones) {
 	}
 
 	return count;
+}
+
+zone_t **zone_list(zone_t *zones) {
+	size_t	 size  = lst_size(zones);
+	zone_t **array = _malloc(align(sizeof(zone_t *) * (size + 1), ALIGNMENT));
+	size_t	 i	   = 0;
+
+	if (!array) {
+		return NULL;
+	}
+
+	for (zone_t *zone = zones; zone; zone = zone->next) {
+		array[i++] = zone;
+	}
+
+	qsort((void *)array, size, sizeof(zone_t *), compare);
+
+	array[size] = NULL;
+
+	return array;
 }

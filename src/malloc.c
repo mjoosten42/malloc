@@ -2,9 +2,9 @@
 #include "impl.h"	// _malloc
 #include "memory.h" // ALIGN, ALIGNMENT
 
+#include <errno.h>
 #include <pthread.h>
 #include <stdio.h>
-#include <errno.h>
 
 zone_t		   *zones = NULL;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -16,7 +16,7 @@ void *malloc(size_t size) {
 
 	pthread_mutex_lock(&mutex);
 	void *ret = _malloc(align(size, ALIGNMENT));
-	LOG("malloc(%lu):\t\t%p\n", size, ret);
+	LOG("malloc(%lu):\t\t\t%p\n", size, ret);
 	pthread_mutex_unlock(&mutex);
 
 	return ret;
