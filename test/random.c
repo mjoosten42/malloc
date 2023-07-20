@@ -8,7 +8,7 @@
 #include <libgen.h>
 
 #define SIZE	32
-#define MAX 	5000
+#define MAX 	128
 
 int main(int argc, char *argv[]) {
 	void	*ptrs[SIZE] = { 0 };
@@ -20,7 +20,8 @@ int main(int argc, char *argv[]) {
 	}
 
 	srand(time(NULL));
-	
+	atexit(show);	
+
 	size_t	max = strtol(argv[1], NULL, 10);
 	for (size_t i = 0; i != max; i++) {
 		size_t	r = rand() % SIZE;
@@ -44,6 +45,4 @@ int main(int argc, char *argv[]) {
 			write(-1, ptrs[r], 1);			
 		}
 	}
-
-	show();
 }

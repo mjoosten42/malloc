@@ -1,6 +1,8 @@
 #include "debug.h"
 #include "impl.h"	// _malloc
 #include "memory.h" // ALIGN, ALIGNMENT
+#include "table.h"	// table_t
+#include "iter.h"
 
 #include <errno.h>
 #include <pthread.h>
@@ -8,6 +10,7 @@
 
 zone_t		   *zones = NULL;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+table_t			table = { NULL, 0, 0 };
 
 export void *malloc(size_t size) {
 	if (!size) {
@@ -15,7 +18,7 @@ export void *malloc(size_t size) {
 	}
 
 	pthread_mutex_lock(&mutex);
-	void *ret = _malloc(align(size, ALIGNMENT));
+	void *ret = _malloc(size);
 	LOG("malloc(%lu):\t\t\t%p\n", size, ret);
 	pthread_mutex_unlock(&mutex);
 
@@ -23,47 +26,28 @@ export void *malloc(size_t size) {
 }
 
 void *_malloc(size_t size) {
-	chunk_t *chunk = find(zones, size);
+	size_t aligned = align(size, ALIGNMENT);
+	zone_t *zone = get(&table, aligned);
 
-	if (!chunk) {
-		zone_t *zone = map(size);
+	if (!zone) {
+		return NULL;
+	}
 
-		if (!zone) {
+	iter_t it = find(zone);
+
+	if (!ok(&it)) {
+		zone_t *new = map(aligned);
+
+		if (!new) {
 			return NULL;
 		}
 
-		push(&zones, zone);
+		push(&zone, new);
 
-		chunk = zone->chunk;
+		zone = new;
 	}
 
-	split(chunk, size);
+	take(&it, size);
 
-	chunk->used = 1;
-
-	return chunk->memory;
-}
-
-chunk_t *find(zone_t *zones, size_t size) {
-	zone_t tmp;
-	
-	for (zone_t *zone = zones; zone; zone = zone->next) {
-		defragment(zone);
-
-		for (chunk_t *chunk = zone->chunk; chunk->size; chunk = next(chunk)) {
-			if (!chunk->used && chunk->size >= size) {
-				return chunk;
-			}
-		}
-
-		if (!is_used(zone)) {
-			tmp = *zone;
-
-			unmap(zone);
-
-			zone = &tmp;
-		}
-	}
-
-	return NULL;
+	return it.chunk->memory;
 }

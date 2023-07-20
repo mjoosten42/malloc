@@ -4,18 +4,14 @@
 #include <stdalign.h>
 #include <stddef.h>
 
-#define CHUNKSIZE sizeof(chunk_t)
+typedef struct zone zone_t;
 
-struct chunk {
-	size_t		size;
-	int			used;
-	max_align_t memory[];
-};
+typedef struct chunk {
+	size_t size;
+	max_align_t	memory[];
+}	chunk_t;
 
-typedef struct chunk chunk_t;
-
-chunk_t *next(const chunk_t *chunk);
 chunk_t *ptr_to_chunk(void *ptr);
-void	 split(chunk_t *chunk, size_t size);
+chunk_t *next_chunk(zone_t *zone, chunk_t *chunk);
 
 #endif // CHUNK_H

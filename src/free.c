@@ -1,9 +1,9 @@
 #include "chunk.h"
 #include "debug.h" // LOG
-#include "impl.h"
+#include "impl.h"  // mutex
+#include "table.h" // get
 
-#include <signal.h> // TODO: remove
-#include <stdint.h> // uintptr_t
+#include <pthread.h>
 
 export void free(void *ptr) {
 	LOG("free(%p)\n", ptr);
@@ -17,12 +17,10 @@ export void free(void *ptr) {
 	pthread_mutex_unlock(&mutex);
 }
 
-/* This does not merge chunks or unmap zones,
- * because finding the zone header from a chunk isn't possible.
- * Instead, cleanup is done at allocation time
- */
 void _free(void *ptr) {
 	chunk_t *chunk = ptr_to_chunk(ptr);
+	// zone_t *zone = get(&table, align(chunk->size));
 
-	chunk->used = 0;
+	chunk->size = 0;
+
 }

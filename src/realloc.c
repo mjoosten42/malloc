@@ -1,7 +1,9 @@
 #include "debug.h"
-#include "impl.h"
+#include "impl.h"	// mutex
 #include "libft.h"	// ft_memcpy
 #include "memory.h" // align
+
+#include <pthread.h>
 
 /*	ptr		size
  *	0		0		NULL
@@ -31,35 +33,18 @@ export void *realloc(void *ptr, size_t size) {
 	return ret;
 }
 
-/* Merge with next chunks if they're unused.
- * If size is sufficient, split and be done.
- * If not, allocate a new chunk, copy and free the old chunk
- */
+// This implementation doesn't work for realloc
 void *_realloc(void *ptr, size_t size) {
 	chunk_t *chunk = ptr_to_chunk(ptr);
-	void	*ret   = NULL;
+	void *new = _malloc(size);
 
-	for (chunk_t *n = next(chunk); n->size && !n->used; n = next(n)) {
-		chunk->size += CHUNKSIZE + n->size;
+	if (!new) {
+		return NULL;
 	}
 
-	if (chunk->size >= size) {
-		split(chunk, size);
+	ft_memcpy(new, ptr, MIN(chunk->size, size));
 
-		ret = chunk->memory;
-	} else {
-		void *new = _malloc(size);
+	_free(ptr);
 
-		if (!new) {
-			return NULL;
-		}
-
-		ft_memcpy(new, ptr, MIN(chunk->size, size));
-
-		_free(ptr);
-
-		ret = new;
-	}
-
-	return ret;
+	return new;
 }

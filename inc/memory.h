@@ -3,6 +3,7 @@
 #include <unistd.h>	  // getpagesize
 
 #define ALIGNMENT alignof(max_align_t)
+#define PAGESIZE getpagesize()
 
 /* Aligment
  * The pointers return by *alloc must be aligned to fit any type.

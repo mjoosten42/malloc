@@ -9,7 +9,7 @@
 export void *calloc(size_t count, size_t size) {
 	size_t total = count * size;
 
-	if (!total ||  SIZE_MAX / count < size) {
+	if (!total || SIZE_MAX / count < size) {
 		return NULL;
 	}
 
