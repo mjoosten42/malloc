@@ -7,9 +7,8 @@
 #include <stddef.h>	 // size_t
 
 #define MIN(a, b) (a < b ? a : b)
-
-// Maximum size to put in a small zone
-#define LIMIT 4000UL
+#define export __attribute__((visibility("default")))
+#define PAGESIZE getpagesize()
 
 extern zone_t		  *zones;
 extern pthread_mutex_t mutex;

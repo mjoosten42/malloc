@@ -4,7 +4,14 @@ HOST = libft_malloc_$(HOSTTYPE).so
 CC = gcc
 
 HFLAGS = -MMD -MP
-CFLAGS = -Wall -Wextra -Werror 
+CFLAGS = -Wall -Wextra -Werror -fvisibility=hidden 
+
+OS := $(shell uname -s)
+
+ifeq ($(OS), Linux)
+	LDFLAGS = -Wl,--exclude-libs,ALL
+endif
+	
 
 SRC_DIR = src
 OBJ_DIR = obj
@@ -43,7 +50,7 @@ $(NAME): $(HOST)
 	ln -fs $^ $@
 	
 $(HOST): $(OBJECTS) $(LIBFT)
-	$(CC) $(LIBFT) -shared $^ -o $@ 
+	$(CC) $(LIBFT) -shared $(LDFLAGS) $^ -o $@ 
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -fPIC $(HFLAGS) $(INCLUDE) -c $< -o $@

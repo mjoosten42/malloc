@@ -1,14 +1,15 @@
 #include "debug.h"
-#include "impl.h"
+#include "impl.h" // pagesize
 #include "malloc.h"
+#include "memory.h" // align
 
 #include <pthread.h>
 #include <stdint.h> // SIZE_MAX
 
-void *calloc(size_t count, size_t size) {
+export void *calloc(size_t count, size_t size) {
 	size_t total = count * size;
 
-	if (SIZE_MAX / count < size) {
+	if (!total ||  SIZE_MAX / count < size) {
 		return NULL;
 	}
 

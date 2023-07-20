@@ -9,7 +9,7 @@
 zone_t		   *zones = NULL;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-void *malloc(size_t size) {
+export void *malloc(size_t size) {
 	if (!size) {
 		return NULL;
 	}
@@ -23,12 +23,7 @@ void *malloc(size_t size) {
 }
 
 void *_malloc(size_t size) {
-	chunk_t *chunk	  = NULL;
-	int		 is_small = size <= LIMIT;
-
-	if (is_small) {
-		chunk = find(zones, size);
-	}
+	chunk_t *chunk = find(zones, size);
 
 	if (!chunk) {
 		zone_t *zone = map(size);
@@ -42,9 +37,7 @@ void *_malloc(size_t size) {
 		chunk = zone->chunk;
 	}
 
-	if (is_small) {
-		split(chunk, size);
-	}
+	split(chunk, size);
 
 	chunk->used = 1;
 
@@ -52,11 +45,23 @@ void *_malloc(size_t size) {
 }
 
 chunk_t *find(zone_t *zones, size_t size) {
+	zone_t tmp;
+	
 	for (zone_t *zone = zones; zone; zone = zone->next) {
+		defragment(zone);
+
 		for (chunk_t *chunk = zone->chunk; chunk->size; chunk = next(chunk)) {
 			if (!chunk->used && chunk->size >= size) {
 				return chunk;
 			}
+		}
+
+		if (!is_used(zone)) {
+			tmp = *zone;
+
+			unmap(zone);
+
+			zone = &tmp;
 		}
 	}
 

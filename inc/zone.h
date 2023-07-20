@@ -2,11 +2,8 @@
 #define ZONE_H
 
 #include "chunk.h"
-#include "memory.h" // ALIGN
 
 #include <stddef.h> // size_t
-
-#define HEADERSIZE (sizeof(zone_t) + 2 * sizeof(chunk_t)
 
 /* [ ZONE  ]
  * [ CHUNK ] 	CHUNKSIZE
@@ -31,8 +28,6 @@ void	push(zone_t **lst, zone_t *new);
 
 void defragment(zone_t *zone);
 int	 is_used(zone_t *zone);
-
-zone_t *chunk_to_zone(chunk_t *chunk);
 
 size_t	 lst_size(zone_t *zones);
 zone_t **zone_list(zone_t *zones);

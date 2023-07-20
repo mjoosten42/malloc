@@ -1,15 +1,15 @@
 #include "debug.h"
 
-#include <stdint.h> // uintptr_t
 #include "impl.h"	// zones
 #include "malloc.h" // show_alloc_mem
-#include "malloc.h"
-#include "zone.h" // zone_t
+#include "memory.h" // alignment
+#include "zone.h"	// zone_t
 
 #include <signal.h> // raise
+#include <stdint.h> // uintptr_t
 #include <stdlib.h> // qsort
 
-void show_alloc_mem(void) {
+export void show_alloc_mem(void) {
 	zone_t **array = zone_list(zones);
 
 	if (!array) {
@@ -20,7 +20,7 @@ void show_alloc_mem(void) {
 	while (*array++) {
 		zone_t	*zone  = *array;
 		chunk_t *chunk = zone->chunk;
-		char	*type  = chunk->size > LIMIT ? "LARGE" : "SMALL";
+		char	*type  = chunk->size > 4000 ? "LARGE" : "SMALL";
 
 		ft_printf("%s : %p\n", type, (void *)zone);
 
@@ -35,9 +35,21 @@ void show_alloc_mem(void) {
 	_free(array);
 }
 
-void show_alloc_mem_ex(void) {}
+export void show_alloc_mem_ex(void) {}
 
-void show(void) {
+void print_human_bytes(const char *str, size_t bytes) {
+	int i = 0;
+	const char letters[] = "\0kmgt";
+
+	while (bytes / 1024) {
+		bytes /= 1024;
+		i++;
+	}
+
+	ft_printf("%s %lu%cb\n", str, bytes, letters[i]);
+};
+
+export void show(void) {
 	zone_t **array = zone_list(zones);
 	zone_t	*zone  = NULL;
 
@@ -51,9 +63,36 @@ void show(void) {
 	}
 
 	_free(array);
+
+	print_human_bytes("total:", mem_total());
+	print_human_bytes("used: ", mem_used());
+	printf("usage: %2.0f%%\n", 100.0 * (float)mem_used() / (float)mem_total());
 }
 
-void show_zone(zone_t *zone) {
+size_t mem_total(void) {
+	size_t total = 0;
+
+	for (zone_t *zone = zones; zone; zone = zone->next) {
+		total += zone->capacity;
+	}
+
+	return total;
+}
+
+size_t mem_used(void) {
+	size_t used = 0;
+
+	for (zone_t *zone = zones; zone; zone = zone->next) {
+		for (chunk_t *chunk = zone->chunk; chunk->size; chunk = next(chunk)) {
+			if (chunk->used) {
+				used += chunk->size;
+			}
+		}
+	}
+
+	return used;
+}
+export void show_zone(zone_t *zone) {
 	ft_printf("----\t%p | %lu ----\n", (void *)zone, zone->capacity);
 
 	for (chunk_t *chunk = zone->chunk; chunk->size; chunk = next(chunk)) {
@@ -64,7 +103,7 @@ void show_zone(zone_t *zone) {
 	}
 }
 
-void mwrite(size_t min) {
+export void mwrite(size_t min) {
 	for (zone_t *zone = zones; zone != NULL; zone = zone->next) {
 		for (chunk_t *chunk = zone->chunk; chunk->size; chunk = next(chunk)) {
 			write_strings((const char *)chunk->memory, chunk->size, min);
@@ -100,7 +139,7 @@ void write_strings(const char *str, size_t len, size_t min) {
 	}
 }
 
-void sanitize() {
+export void sanitize() {
 	for (zone_t *zone = zones; zone; zone = zone->next) {
 		if (zone->prev && zone->prev->next != zone) {
 			ft_printf("list error\n");
@@ -122,34 +161,11 @@ void sanitize() {
 				ft_printf("corrupt used: %d\n", chunk->used);
 				raise(SIGTRAP);
 			}
-
-			if (chunk != zone->chunk && zone->capacity > (size_t)PAGESIZE) {
-				ft_printf("multiple chunks in multipage zone\n");
-				raise(SIGTRAP);
-			}
 		}
 	}
 }
 
-void show_around(zone_t *ptr, size_t range) {
-	size_t _range = range * PAGESIZE;
-
-	for (zone_t *zone = zones; zone; zone = zone->next) {
-		uintptr_t diff = 0;
-
-		if (ptr > zone) {
-			diff = (uintptr_t)ptr - (uintptr_t)zone;
-		} else {
-			diff = (uintptr_t)zone - (uintptr_t)ptr;
-		}
-
-		if (diff < _range) {
-			ft_printf("%p\n", zone);
-		}
-	}
-}
-
-zone_t *find_zone(zone_t *ptr) {
+export zone_t *find_zone(zone_t *ptr) {
 	zone_t *closest = NULL;
 
 	for (zone_t *zone = zones; zone; zone = zone->next) {
@@ -159,8 +175,4 @@ zone_t *find_zone(zone_t *ptr) {
 	}
 
 	return closest;
-}
-
-int compare(const void *first, const void *second) {
-	return *(zone_t **)first < *(zone_t **)second;
 }

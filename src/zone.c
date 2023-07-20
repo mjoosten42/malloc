@@ -1,11 +1,11 @@
 #include "zone.h"
 
 #include "chunk.h"
-#include "debug.h"
 #include "impl.h"	// zones
 #include "memory.h" // align, PAGESIZE
 
 #include <stdint.h> // uintptr_t
+#include <stdlib.h> // qsort
 
 zone_t *map(size_t size) {
 	size_t	header_size = sizeof(zone_t) + 2 * CHUNKSIZE;
@@ -76,12 +76,6 @@ int is_used(zone_t *zone) {
 	return 0;
 }
 
-// Zero out the last few bits
-// This works because no chunks are allowed to start past PAGESIZE of a zone
-zone_t *chunk_to_zone(chunk_t *chunk) {
-	return (zone_t *)((uintptr_t)chunk & ~(PAGESIZE - 1));
-}
-
 size_t lst_size(zone_t *zones) {
 	size_t count = 0;
 
@@ -92,6 +86,11 @@ size_t lst_size(zone_t *zones) {
 	return count;
 }
 
+static int compare(const void *first, const void *second) {
+	return *(zone_t **)first < *(zone_t **)second;
+}
+
+// returns a sorted, malloc'ed array of zone pointers
 zone_t **zone_list(zone_t *zones) {
 	size_t	 size  = lst_size(zones);
 	zone_t **array = _malloc(align(sizeof(zone_t *) * (size + 1), ALIGNMENT));

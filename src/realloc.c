@@ -1,16 +1,21 @@
 #include "debug.h"
 #include "impl.h"
-#include "libft.h"
+#include "libft.h"	// ft_memcpy
 #include "memory.h" // align
 
 /*	ptr		size
- *	0		any		_malloc
+ *	0		0		NULL
+ *	0		!0		_malloc
  *	!0		0		_free
  *  !0		!0		_realloc
  */
 
-void *realloc(void *ptr, size_t size) {
+export void *realloc(void *ptr, size_t size) {
 	void *ret = NULL;
+
+	if (!ptr && !size) {
+		return NULL;
+	}
 
 	pthread_mutex_lock(&mutex);
 	if (!ptr) {
@@ -26,24 +31,20 @@ void *realloc(void *ptr, size_t size) {
 	return ret;
 }
 
-/* Merge with next chunk if it's unused.
+/* Merge with next chunks if they're unused.
  * If size is sufficient, split and be done.
  * If not, allocate a new chunk, copy and free the old chunk
  */
 void *_realloc(void *ptr, size_t size) {
 	chunk_t *chunk = ptr_to_chunk(ptr);
-	zone_t	*zone  = chunk_to_zone(chunk);
-	chunk_t *n	   = next(chunk);
 	void	*ret   = NULL;
 
-	if (n->size && !n->used) {
+	for (chunk_t *n = next(chunk); n->size && !n->used; n = next(n)) {
 		chunk->size += CHUNKSIZE + n->size;
 	}
 
 	if (chunk->size >= size) {
-		if (zone->capacity == (size_t)PAGESIZE) {
-			split(chunk, size);
-		}
+		split(chunk, size);
 
 		ret = chunk->memory;
 	} else {
