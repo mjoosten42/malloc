@@ -19,3 +19,13 @@ void split(chunk_t *chunk, size_t size) {
 chunk_t *ptr_to_chunk(void *ptr) {
 	return (chunk_t *)((uintptr_t)ptr - CHUNKSIZE);
 }
+
+void defragment(chunk_t *start) {
+	for (chunk_t *chunk = start; chunk->size; chunk = next(chunk)) {
+		if (!chunk->used) {
+			for (chunk_t *n = next(chunk); n->size && !n->used; n = next(n)) {
+				chunk->size += CHUNKSIZE + n->size;
+			}
+		}
+	}
+}

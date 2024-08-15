@@ -1,6 +1,6 @@
 #include "memory.h"
 
-#include "debug.h" // LOCKED, LOG
+#include "debug.h" // LOG
 
 #include <errno.h>	  // errno
 #include <stdint.h>	  // SIZE_MAX

@@ -39,9 +39,7 @@ void *_realloc(void *ptr, size_t size) {
 	chunk_t *chunk = ptr_to_chunk(ptr);
 	void	*ret   = NULL;
 
-	for (chunk_t *n = next(chunk); n->size && !n->used; n = next(n)) {
-		chunk->size += CHUNKSIZE + n->size;
-	}
+	defragment(chunk);
 
 	if (chunk->size >= size) {
 		split(chunk, size);

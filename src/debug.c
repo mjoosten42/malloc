@@ -11,31 +11,36 @@
 
 export void show_alloc_mem(void) {
 	zone_t **array = zone_list(zones);
+	size_t total = 0;
 
 	if (!array) {
 		perror("malloc: show_alloc_mem");
 		return;
 	}
 
-	while (*array++) {
+	while (*array) {
 		zone_t	*zone  = *array;
 		chunk_t *chunk = zone->chunk;
-		char	*type  = chunk->size > 4000 ? "LARGE" : "SMALL";
+		char	*type  = chunk->size < n ? "TINY" : chunk->size < m ? "SMALL" : "LARGE";
 
-		ft_printf("%s : %p\n", type, (void *)zone);
+		ft_printf("%s : %p\n", type, zone);
 
 		for (; chunk->size; chunk = next(chunk)) {
 			ft_printf("%p - %p : %lu bytes\n",
 					  chunk->memory,
-					  (void *)next(chunk),
+					  next(chunk),
 					  chunk->size);
+
+			total += chunk->size;
 		}
+
+		array++;
 	}
+
+	ft_printf("Total : %lu bytes\n", total);
 
 	_free(array);
 }
-
-export void show_alloc_mem_ex(void) {}
 
 void print_human_bytes(const char *str, size_t bytes) {
 	int i = 0;
@@ -163,16 +168,4 @@ export void sanitize() {
 			}
 		}
 	}
-}
-
-export zone_t *find_zone(zone_t *ptr) {
-	zone_t *closest = NULL;
-
-	for (zone_t *zone = zones; zone; zone = zone->next) {
-		if (zone > closest && zone <= ptr) {
-			closest = zone;
-		}
-	}
-
-	return closest;
 }

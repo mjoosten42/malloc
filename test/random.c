@@ -8,7 +8,7 @@
 #include <libgen.h>
 
 #define SIZE	32
-#define MAX 	5000
+#define MAX 	8096
 
 int main(int argc, char *argv[]) {
 	void	*ptrs[SIZE] = { 0 };
@@ -26,7 +26,9 @@ int main(int argc, char *argv[]) {
 		size_t	r = rand() % SIZE;
 
 		if (used[r]) {
-			if (r % 2) {
+			size_t s = rand();
+		
+			if (s % 2) {
 				ptrs[r] = realloc(ptrs[r], 1 + rand() % MAX);
 				if (!ptrs[r]) {
 					return 1;
@@ -45,5 +47,5 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	show();
+	show_alloc_mem();
 }

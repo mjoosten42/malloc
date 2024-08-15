@@ -2,6 +2,7 @@
 #define DEBUG_H
 
 #include "libft.h" // ft_printf
+#include <stdint.h> // uintptr_t
 #include "zone.h"
 
 #ifdef VERBOSE
@@ -9,6 +10,9 @@
 #else
 	#define LOG(format, ...)
 #endif
+
+int common_ptr_denominator_size(zone_t *zones);
+void *reduce(void *ptr, int common);
 
 void show(void);
 void show_zone(zone_t *zone);
@@ -18,7 +22,5 @@ void sanitize(void);
 
 size_t mem_total(void);
 size_t mem_used(void);
-
-zone_t *find_zone(zone_t *ptr);
 
 #endif // DEBUG_H

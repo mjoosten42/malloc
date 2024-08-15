@@ -48,7 +48,7 @@ chunk_t *find(zone_t *zones, size_t size) {
 	zone_t tmp;
 	
 	for (zone_t *zone = zones; zone; zone = zone->next) {
-		defragment(zone);
+		defragment(zone->chunk);
 
 		for (chunk_t *chunk = zone->chunk; chunk->size; chunk = next(chunk)) {
 			if (!chunk->used && chunk->size >= size) {

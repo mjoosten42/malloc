@@ -11,7 +11,6 @@ OS := $(shell uname -s)
 ifeq ($(OS), Linux)
 	LDFLAGS = -Wl,--exclude-libs,ALL
 endif
-	
 
 SRC_DIR = src
 OBJ_DIR = obj
@@ -34,7 +33,7 @@ INCLUDE += -I lib/libft/include
 OBJECTS = $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%,$(SOURCES:.c=.o))
 
 DEBUG ?= 1
-VERBOSE ?= 1
+VERBOSE ?= 0
 
 ifeq ($(DEBUG), 1)
 	CFLAGS += -O0 -g

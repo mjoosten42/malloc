@@ -16,7 +16,9 @@ export void *calloc(size_t count, size_t size) {
 	pthread_mutex_lock(&mutex);
 	void *ret = _malloc(align(total, PAGESIZE));
 
-	ft_bzero(ret, total);
+	if (ret) {
+		ft_bzero(ret, total);
+	}
 
 	LOG("calloc(%lu, %lu)\t%p\n", count, size, ret);
 	pthread_mutex_unlock(&mutex);
