@@ -4,24 +4,22 @@
 #include "memory.h" // align
 
 /*	ptr		size
- *	0		0		NULL
+ *	*		0		_free
  *	0		!0		_malloc
- *	!0		0		_free
  *  !0		!0		_realloc
  */
 
 export void *realloc(void *ptr, size_t size) {
 	void *ret = NULL;
 
-	if (!ptr && !size) {
+	if (!size) {
+		free(ptr);
 		return NULL;
 	}
 
 	pthread_mutex_lock(&mutex);
 	if (!ptr) {
 		ret = _malloc(align(size, ALIGNMENT));
-	} else if (!size) {
-		_free(ptr);
 	} else {
 		ret = _realloc(ptr, align(size, ALIGNMENT));
 	}

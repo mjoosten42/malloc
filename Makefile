@@ -91,6 +91,12 @@ format: files
 scan: clean
 	scan-build make
 
+N ?= 0
+
+faults:
+	@/usr/bin/time -v ./test$N.out 2>&1 | sed -n '13p' | cut -d ' ' -f6-
+	@/usr/bin/time -v ./run.sh ./test$N.out 2>&1 | sed -n '13p' | cut -d ' ' -f6-
+
 .PHONY: all test clean fclean re run files print format scan
 
 -include $(OBJECTS:.o=.d)
