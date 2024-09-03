@@ -10,11 +10,8 @@
 #define export __attribute__((visibility("default")))
 #define PAGESIZE getpagesize()
 
-#define n 0x100
-#define m 0x4000
-
-extern zone_t		  *zones;
-extern pthread_mutex_t mutex;
+extern pthread_mutex_t g_mutex;
+extern table_t 		   g_table;
 
 void  _free(void *ptr);
 void *_malloc(size_t size);

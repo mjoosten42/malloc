@@ -37,23 +37,56 @@ void unmap(zone_t *zone) {
 		zone->next->prev = zone->prev;
 	}
 
-	if (zone == zones) {
-		zones = zone->next;
-	}
-
 	deallocate(zone, zone->capacity);
 }
 
-void push(zone_t **zones, zone_t *new) {
-	zone_t *head = *zones;
-
-	new->next = head;
-
-	if (head) {
-		head->prev = new;
+void push_back(zone_t *head, zone_t *new) {
+	while (head->next) {
+		head = head->next;
 	}
 
-	*zones = new;
+	head->next = new;
+	new->prev = head;
+}
+
+zone_t *find_zone(chunk_t *chunk) {
+	zone_t *zone = table_get(chunk->size);
+
+	for (; zone; zone = zone->next) {
+		if (chunk > (chunk_t *)zone && chunk < (chunk_t *)((uintptr_t)zone + zone->capacity)) {
+			return zone;
+		}
+	}
+
+	return NULL;
+}
+
+void clean(zone_t *zone) {
+	defragment(zone->chunk);
+
+	if (!table_contains(&g_table, zone) && !is_used(zone)) {
+		unmap(zone);
+	}
+}
+
+zone_t *table_get(size_t size) {
+	if (table_contains(&g_table, NULL)) {
+		init();
+	}
+
+	return size > TINY ? size > SMALL ? g_table.large : g_table.small : g_table.tiny;
+}
+
+void init(void) {
+	size_t allocations = 100;
+
+	g_table.tiny = map(allocations * TINY);
+	g_table.small = map(allocations * SMALL);
+	g_table.large = map(LARGE);
+}
+
+int	table_contains(table_t *table, zone_t *zone) {
+	return table->tiny == zone || table->small == zone || table->large == zone;
 }
 
 int is_used(zone_t *zone) {
@@ -64,6 +97,10 @@ int is_used(zone_t *zone) {
 	}
 
 	return 0;
+}
+
+zone_t *first_chunk_to_zone(chunk_t *chunk) {
+	return (zone_t *)((uintptr_t)chunk - sizeof(zone_t));
 }
 
 size_t lst_size(zone_t *zones) {

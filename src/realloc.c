@@ -17,14 +17,14 @@ export void *realloc(void *ptr, size_t size) {
 		return NULL;
 	}
 
-	pthread_mutex_lock(&mutex);
+	pthread_mutex_lock(&g_mutex);
 	if (!ptr) {
 		ret = _malloc(align(size, ALIGNMENT));
 	} else {
 		ret = _realloc(ptr, align(size, ALIGNMENT));
 	}
 	LOG("realloc(%p, %lu):\t%p\n", ptr, size, ret);
-	pthread_mutex_unlock(&mutex);
+	pthread_mutex_unlock(&g_mutex);
 
 	return ret;
 }
@@ -34,12 +34,13 @@ export void *realloc(void *ptr, size_t size) {
  * If not, allocate a new chunk, copy and free the old chunk
  */
 void *_realloc(void *ptr, size_t size) {
-	chunk_t *chunk = ptr_to_chunk(ptr);
-	void	*ret   = NULL;
+	chunk_t *chunk	  = ptr_to_chunk(ptr);
+	size_t	 old_size = chunk->size;
+	void	*ret	  = NULL;
 
 	defragment(chunk);
 
-	if (chunk->size >= size) {
+	if (chunk->size >= size && table_get(old_size) == table_get(size)) {
 		split(chunk, size);
 
 		ret = chunk->memory;

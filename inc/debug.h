@@ -11,16 +11,6 @@
 	#define LOG(format, ...)
 #endif
 
-int common_ptr_denominator_size(zone_t *zones);
-void *reduce(void *ptr, int common);
-
-void show(void);
-void show_zone(zone_t *zone);
-void mwrite(size_t min);
-void write_strings(const char *str, size_t len, size_t min);
-void sanitize(void);
-
-size_t mem_total(void);
-size_t mem_used(void);
+size_t show_alloc_mem_zone(zone_t *zone);
 
 #endif // DEBUG_H

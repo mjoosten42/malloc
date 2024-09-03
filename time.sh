@@ -1,2 +1,2 @@
-/usr/bin/time -v $@ 2>&1 | grep reclaim
-./run.sh /usr/bin/time -v $@ 2>&1 | grep reclaim
+/usr/bin/time -f %R $@
+./run.sh /usr/bin/time -f %R $@
