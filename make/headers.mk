@@ -5,4 +5,3 @@ HEADERS := \
 	inc/impl.h \
 	inc/memory.h \
 	inc/zone.h \
-	inc/table.h \

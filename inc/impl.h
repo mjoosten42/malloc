@@ -11,7 +11,7 @@
 #define PAGESIZE getpagesize()
 
 extern pthread_mutex_t g_mutex;
-extern table_t 		   g_table;
+extern table_t		   g_table;
 
 void  _free(void *ptr);
 void *_malloc(size_t size);

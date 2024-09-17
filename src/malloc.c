@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
-table_t 		g_table = { NULL, NULL, NULL };
+table_t			g_table = { NULL, NULL, NULL };
 
 export void *malloc(size_t size) {
 	if (!size) {
@@ -47,9 +47,9 @@ void *_malloc(size_t size) {
 
 	chunk->used = 1;
 
-	#if MALLOC_PRESCRIBBLE
-		ft_memset(chunk->memory, MALLOC_PRESCRIBBLE_VALUE, chunk->size);
-	#endif
+#if MALLOC_PRESCRIBBLE
+	ft_memset(chunk->memory, MALLOC_PRESCRIBBLE_VALUE, chunk->size);
+#endif
 
 	return chunk->memory;
 }

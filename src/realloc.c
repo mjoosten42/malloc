@@ -36,7 +36,7 @@ export void *realloc(void *ptr, size_t size) {
 void *_realloc(void *ptr, size_t size) {
 	chunk_t *chunk	  = ptr_to_chunk(ptr);
 	size_t	 old_size = chunk->size;
-	void	*ret	  = NULL;
+	void	 *ret	  = NULL;
 
 	defragment(chunk);
 

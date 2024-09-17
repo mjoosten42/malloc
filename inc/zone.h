@@ -5,9 +5,9 @@
 
 #include <stddef.h> // size_t
 
-#define TINY    (1 << 8)
-#define SMALL   (1 << 14)
-#define LARGE	(1 << 20)
+#define TINY (1 << 8)
+#define SMALL (1 << 14)
+#define LARGE (1 << 20)
 
 /* [ ZONE  ]
  * [ CHUNK ] 	CHUNKSIZE
@@ -27,9 +27,9 @@ struct zone {
 typedef struct zone zone_t;
 
 typedef struct {
-    zone_t *tiny;
-    zone_t *small;
-    zone_t *large;
+	zone_t *tiny;
+	zone_t *small;
+	zone_t *large;
 } table_t;
 
 zone_t *map(size_t size);
@@ -39,7 +39,7 @@ zone_t *find_zone(chunk_t *chunk);
 void	clean(zone_t *zone);
 
 zone_t *table_get(size_t size);
-void 	init(void);
+void	init(void);
 int		table_contains(table_t *table, zone_t *zone);
 
 int		is_used(zone_t *zone);

@@ -1,10 +1,10 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-#include <stdint.h> // uintptr_t
-
 #include "libft.h" // ft_printf
 #include "zone.h"
+
+#include <stdint.h> // uintptr_t
 
 #if VERBOSE
 	#define LOG(format, ...) ft_printf(format, __VA_ARGS__)

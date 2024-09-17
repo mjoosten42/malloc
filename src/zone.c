@@ -46,14 +46,15 @@ void push_back(zone_t *head, zone_t *new) {
 	}
 
 	head->next = new;
-	new->prev = head;
+	new->prev  = head;
 }
 
 zone_t *find_zone(chunk_t *chunk) {
 	zone_t *zone = table_get(chunk->size);
 
 	for (; zone; zone = zone->next) {
-		if (chunk > (chunk_t *)zone && chunk < (chunk_t *)((uintptr_t)zone + zone->capacity)) {
+		if (chunk > (chunk_t *)zone &&
+			chunk < (chunk_t *)((uintptr_t)zone + zone->capacity)) {
 			return zone;
 		}
 	}
@@ -74,18 +75,19 @@ zone_t *table_get(size_t size) {
 		init();
 	}
 
-	return size > TINY ? size > SMALL ? g_table.large : g_table.small : g_table.tiny;
+	return size > TINY ? size > SMALL ? g_table.large : g_table.small :
+						 g_table.tiny;
 }
 
 void init(void) {
 	size_t allocations = 100;
 
-	g_table.tiny = map(allocations * TINY);
+	g_table.tiny  = map(allocations * TINY);
 	g_table.small = map(allocations * SMALL);
 	g_table.large = map(LARGE);
 }
 
-int	table_contains(table_t *table, zone_t *zone) {
+int table_contains(table_t *table, zone_t *zone) {
 	return table->tiny == zone || table->small == zone || table->large == zone;
 }
 

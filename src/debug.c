@@ -45,7 +45,8 @@ void show_alloc_mem_hex(zone_t *zone) {
 				ft_printf("%p: ", chunk->memory);
 
 				for (size_t size = 0; size < chunk->size; size += 8) {
-					ft_printf("%x ", *(size_t *)((uintptr_t)(chunk->memory) + size));
+					ft_printf("%x ",
+							  *(size_t *)((uintptr_t)(chunk->memory) + size));
 				}
 
 				ft_printf("\n");
@@ -56,8 +57,8 @@ void show_alloc_mem_hex(zone_t *zone) {
 
 size_t show_alloc_mem_zone(zone_t *zone) {
 	zone_t **array = zone_list(zone);
-	zone_t **tmp = array;
-	size_t total = 0;
+	zone_t **tmp   = array;
+	size_t	 total = 0;
 
 	if (!array) {
 		perror("malloc: show_alloc_mem");
@@ -68,9 +69,9 @@ size_t show_alloc_mem_zone(zone_t *zone) {
 		for (chunk_t *chunk = (*tmp)->chunk; chunk->size; chunk = next(chunk)) {
 			if (chunk->used && (void *)chunk->memory != array) {
 				ft_printf("%p - %p : %lu bytes\n",
-						chunk->memory,
-						next(chunk),
-						chunk->size);
+						  chunk->memory,
+						  next(chunk),
+						  chunk->size);
 
 				total += chunk->size;
 			}
