@@ -4,12 +4,12 @@ HOST = libft_malloc_$(HOSTTYPE).so
 CC = gcc
 
 HFLAGS = -MMD -MP
-CFLAGS = -Wall -Wextra -Werror -fvisibility=hidden 
+CFLAGS = -Wall -Wextra -Werror -fvisibility=hidden
 
 OS := $(shell uname -s)
 
 ifeq ($(OS), Linux)
-	LDFLAGS = -Wl,--exclude-libs,ALL
+	LDFLAGS += -Wl,--exclude-libs,ALL
 endif
 
 SRC_DIR = src
@@ -32,7 +32,7 @@ INCLUDE += -I lib/libft/include
 
 OBJECTS = $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%,$(SOURCES:.c=.o))
 
-DEBUG ?= 1
+DEBUG ?= 0
 VERBOSE ?= 0
 
 ifeq ($(DEBUG), 1)

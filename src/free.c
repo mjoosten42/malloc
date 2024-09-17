@@ -24,5 +24,9 @@ void _free(void *ptr) {
 
 	chunk->used = 0;
 
+	#if MALLOC_SCRIBBLE
+		ft_memset(chunk->memory, MALLOC_SCRIBBLE_VALUE, chunk->size);
+	#endif
+
 	clean(zone);
 }

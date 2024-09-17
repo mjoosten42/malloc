@@ -47,6 +47,10 @@ void *_malloc(size_t size) {
 
 	chunk->used = 1;
 
+	#if MALLOC_PRESCRIBBLE
+		ft_memset(chunk->memory, MALLOC_PRESCRIBBLE_VALUE, chunk->size);
+	#endif
+
 	return chunk->memory;
 }
 

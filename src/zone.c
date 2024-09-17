@@ -23,7 +23,7 @@ zone_t *map(size_t size) {
 	*zone->chunk = (chunk_t){ capacity - header_size, 0 };
 
 	// close with zero-size chunk
-	*next(zone->chunk) = (chunk_t){ 0, 1 };
+	*next(zone->chunk) = (chunk_t){ 0, 0 };
 
 	return zone;
 }
